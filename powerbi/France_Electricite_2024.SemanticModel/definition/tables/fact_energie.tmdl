@@ -1,0 +1,157 @@
+table fact_energie
+	lineageTag: 34304a75-0c26-4cd1-a630-a43208407765
+
+	measure 'Consommation totale (TWh)' =
+
+			SUM(fact_energie[consommation_mwh]) / 1000000
+		lineageTag: 74a7db43-5923-4057-a1f9-d469c289c1dd
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Production nucléaire (TWh)' =
+
+			SUM(fact_energie[nucleaire_mwh]) / 1000000
+		lineageTag: ab9a54a4-272f-4157-945b-e845dbed6974
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Production renouvelable (TWh)' =
+
+			(
+			    SUM(fact_energie[eolien_mwh])
+			    + SUM(fact_energie[solaire_mwh])
+			    + SUM(fact_energie[hydraulique_mwh])
+			    + SUM(fact_energie[bioenergies_mwh])
+			) / 1000000
+		lineageTag: 12ebee6b-8f5d-48ac-9e57-0f93e56f46fe
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Part renouvelables (%)' =
+
+			VAR ProductionTotale =
+			    [Production nucléaire (TWh)]
+			    + [Production renouvelable (TWh)]
+			    + SUM(fact_energie[thermique_mwh]) / 1000000
+			RETURN
+			    DIVIDE(
+			        [Production renouvelable (TWh)],
+			        ProductionTotale
+			    )
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		lineageTag: 4890be96-5f14-40be-865e-0d452540db6b
+
+	column date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 7e7bd863-28e4-4ef4-a500-a62f08dcf8b2
+		summarizeBy: none
+		sourceColumn: date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column code_insee_region
+		dataType: int64
+		formatString: 0
+		lineageTag: b27ea9e7-d210-4f99-9f64-7614830e1f41
+		summarizeBy: none
+		sourceColumn: code_insee_region
+
+		annotation SummarizationSetBy = Automatic
+
+	column nb_demi_heures
+		dataType: int64
+		formatString: 0
+		lineageTag: 5746608f-2435-48d6-8cae-cffb26933291
+		summarizeBy: sum
+		sourceColumn: nb_demi_heures
+
+		annotation SummarizationSetBy = Automatic
+
+	column consommation_mwh
+		dataType: double
+		lineageTag: 7ca6f6b4-adae-48b1-be65-2a9dc5488445
+		summarizeBy: sum
+		sourceColumn: consommation_mwh
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column nucleaire_mwh
+		dataType: double
+		lineageTag: 03fc7cf0-8860-4876-af5e-f74180b54f5a
+		summarizeBy: sum
+		sourceColumn: nucleaire_mwh
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column eolien_mwh
+		dataType: double
+		lineageTag: 82af944a-e447-46bd-96dc-6095962d921a
+		summarizeBy: sum
+		sourceColumn: eolien_mwh
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column solaire_mwh
+		dataType: double
+		lineageTag: 6c092e9e-ac74-4362-ac9a-64fab94df545
+		summarizeBy: sum
+		sourceColumn: solaire_mwh
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column hydraulique_mwh
+		dataType: double
+		lineageTag: 9dc79c9c-5929-4dbb-9b65-0ab79704fe7d
+		summarizeBy: sum
+		sourceColumn: hydraulique_mwh
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column thermique_mwh
+		dataType: double
+		lineageTag: 78fcec4d-5fe3-48bf-9175-37f9f7b1aa77
+		summarizeBy: sum
+		sourceColumn: thermique_mwh
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column bioenergies_mwh
+		dataType: double
+		lineageTag: 28e4266a-f168-40b2-8d6c-d896c1df832d
+		summarizeBy: sum
+		sourceColumn: bioenergies_mwh
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition fact_energie = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataRoot & "fact_energie.csv"),[Delimiter=",", Columns=10, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Modifier le type" = Table.TransformColumnTypes(Source,{{"Column1", type text}, {"Column2", type text}, {"Column3", type text}, {"Column4", type text}, {"Column5", type text}, {"Column6", type text}, {"Column7", type text}, {"Column8", type text}, {"Column9", type text}, {"Column10", type text}}),
+				    #"En-têtes promus" = Table.PromoteHeaders(#"Modifier le type", [PromoteAllScalars=true]),
+				    #"Type modifié" = Table.TransformColumnTypes(#"En-têtes promus",{{"date", type date}, {"code_insee_region", Int64.Type}, {"nb_demi_heures", Int64.Type}, {"consommation_mwh", type text}, {"nucleaire_mwh", type text}, {"eolien_mwh", type text}, {"solaire_mwh", type text}, {"hydraulique_mwh", type text}, {"thermique_mwh", type text}, {"bioenergies_mwh", type text}}),
+				    #"Type modifié avec paramètres régionaux" = Table.TransformColumnTypes(#"Type modifié", {{"consommation_mwh", type number}, {"nucleaire_mwh", type number}, {"eolien_mwh", type number}, {"solaire_mwh", type number}, {"hydraulique_mwh", type number}, {"thermique_mwh", type number}, {"bioenergies_mwh", type number}}, "en-US")
+				in
+				    #"Type modifié avec paramètres régionaux"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table

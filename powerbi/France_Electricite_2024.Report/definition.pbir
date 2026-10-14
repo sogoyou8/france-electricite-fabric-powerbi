@@ -1,0 +1,8 @@
+{
+  "version": "4.0",
+  "datasetReference": {
+    "byPath": {
+      "path": "../France_Electricite_2024.SemanticModel"
+    }
+  }
+}

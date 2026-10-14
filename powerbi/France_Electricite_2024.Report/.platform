@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "France_Electricite_2024"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "5bf8520d-47b6-4efe-a43c-7bd6104e0c01"
+  }
+}

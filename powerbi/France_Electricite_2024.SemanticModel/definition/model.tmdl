@@ -1,0 +1,22 @@
+model Model
+	culture: fr-FR
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: fr-FR
+	valueFilterBehavior: independent
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_QueryOrder = ["fact_energie","dim_date","dim_region"]
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table fact_energie
+ref table DateTableTemplate_50097e31-d238-472b-b013-1f60fdc25914
+ref table dim_date
+ref table LocalDateTable_2a5e4542-6cbb-453b-bdd9-903392903c9d
+ref table dim_region
+
+ref cultureInfo fr-FR

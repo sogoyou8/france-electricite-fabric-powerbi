@@ -1,0 +1,12 @@
+relationship 7f11ea6e-6677-47c1-baba-3a6cc5c8761e
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dim_date.date
+	toColumn: LocalDateTable_2a5e4542-6cbb-453b-bdd9-903392903c9d.Date
+
+relationship AutoDetected_e819416c-2972-4605-b360-57b90a1052bb
+	fromColumn: fact_energie.code_insee_region
+	toColumn: dim_region.code_insee_region
+
+relationship edf5fed8-f644-5425-fefd-fa3884be0abf
+	fromColumn: fact_energie.date
+	toColumn: dim_date.date

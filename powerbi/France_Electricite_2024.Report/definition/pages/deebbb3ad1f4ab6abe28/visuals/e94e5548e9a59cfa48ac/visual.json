@@ -1,0 +1,98 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
+  "name": "e94e5548e9a59cfa48ac",
+  "position": {
+    "x": 0,
+    "y": 342.392776523702,
+    "z": 6,
+    "height": 712.95711060948076,
+    "width": 1920,
+    "tabOrder": 6
+  },
+  "visual": {
+    "visualType": "clusteredBarChart",
+    "query": {
+      "queryState": {
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_date"
+                    }
+                  },
+                  "Property": "Production bioénergies (TWh)"
+                }
+              },
+              "queryRef": "dim_date.Production bioénergies (TWh)",
+              "nativeQueryRef": "Production bioénergies (TWh)"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_date"
+                    }
+                  },
+                  "Property": "Production éolienne (TWh)"
+                }
+              },
+              "queryRef": "dim_date.Production éolienne (TWh)",
+              "nativeQueryRef": "Production éolienne (TWh)"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_date"
+                    }
+                  },
+                  "Property": "Production hydraulique (TWh)"
+                }
+              },
+              "queryRef": "dim_date.Production hydraulique (TWh)",
+              "nativeQueryRef": "Production hydraulique (TWh)"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_date"
+                    }
+                  },
+                  "Property": "Production solaire (TWh)"
+                }
+              },
+              "queryRef": "dim_date.Production solaire (TWh)",
+              "nativeQueryRef": "Production solaire (TWh)"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "dim_date"
+                  }
+                },
+                "Property": "Production bioénergies (TWh)"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

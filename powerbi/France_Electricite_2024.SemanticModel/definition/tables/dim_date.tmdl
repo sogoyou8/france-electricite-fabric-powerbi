@@ -1,0 +1,179 @@
+table dim_date
+	lineageTag: ce440a0a-c8d4-4e61-9cfc-b72dce358b54
+
+	measure 'Production totale (TWh)' =
+
+			DIVIDE(
+			    SUM(fact_energie[nucleaire_mwh])
+			    + SUM(fact_energie[eolien_mwh])
+			    + SUM(fact_energie[solaire_mwh])
+			    + SUM(fact_energie[hydraulique_mwh])
+			    + SUM(fact_energie[bioenergies_mwh])
+			    + SUM(fact_energie[thermique_mwh]),
+			    1000000
+			)
+		lineageTag: 493349e8-781c-4731-ac77-96929b860ee1
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Taux de couverture (%)' = ```
+
+			DIVIDE(
+			    [Production totale (TWh)],
+			    [Consommation totale (TWh)]
+			)
+
+			```
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		lineageTag: 9bdf92d5-63e8-456c-a25e-4bdbb97b4057
+
+	measure 'Production éolienne (TWh)' = ```
+
+			DIVIDE(
+			    SUM(fact_energie[eolien_mwh]),
+			    1000000
+			)
+
+			```
+		lineageTag: ad390535-fc01-4370-b28a-3b0849251788
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Production solaire (TWh)' = ```
+
+			DIVIDE(
+			    SUM(fact_energie[solaire_mwh]),
+			    1000000
+			)
+
+			```
+		lineageTag: 6ec53aab-3195-4d79-98f9-8c8c099c88a0
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Production hydraulique (TWh)' = ```
+
+			DIVIDE(
+			    SUM(fact_energie[hydraulique_mwh]),
+			    1000000
+			)
+
+			```
+		lineageTag: cf84246b-5059-4791-82e9-b65a4dd342a6
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Production bioénergies (TWh)' = ```
+
+			DIVIDE(
+			    SUM(fact_energie[bioenergies_mwh]),
+			    1000000
+			)
+
+			```
+		lineageTag: 61fc8a1f-2c76-4dd9-b7d6-2e33b7ee7df8
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Écart contrôle renouvelables (TWh)' = ```
+
+			[Production renouvelable (TWh)]
+			- (
+			    [Production hydraulique (TWh)]
+			    + [Production éolienne (TWh)]
+			    + [Production solaire (TWh)]
+			    + [Production bioénergies (TWh)]
+			)
+
+			```
+		formatString: 0.0000
+		lineageTag: 00728ee8-7ca7-417f-a10b-6d04cdb0baed
+
+
+	measure 'Production thermique (TWh)' = ```
+
+			DIVIDE(
+			    SUM(fact_energie[thermique_mwh]),
+			    1000000
+			)
+
+			```
+		lineageTag: aa7d3e6a-ca9c-4c01-8ac6-74bee6404e78
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: ce417e9b-d014-4219-a1c6-ba22149a4b47
+		summarizeBy: none
+		sourceColumn: date
+
+		variation Variation
+			isDefault
+			relationship: 7f11ea6e-6677-47c1-baba-3a6cc5c8761e
+			defaultHierarchy: LocalDateTable_2a5e4542-6cbb-453b-bdd9-903392903c9d.'Hiérarchie de dates'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column annee
+		dataType: int64
+		formatString: 0
+		lineageTag: 8e209309-c2f8-4cfd-9793-49cb1452ca6a
+		summarizeBy: sum
+		sourceColumn: annee
+
+		annotation SummarizationSetBy = Automatic
+
+	column trimestre
+		dataType: int64
+		formatString: 0
+		lineageTag: 38c4f4b7-99a6-454d-a4fa-0b04a9355c1c
+		summarizeBy: sum
+		sourceColumn: trimestre
+
+		annotation SummarizationSetBy = Automatic
+
+	column mois
+		dataType: int64
+		formatString: 0
+		lineageTag: f916958e-f980-4ce9-a750-c2b5c6dc66d5
+		summarizeBy: sum
+		sourceColumn: mois
+
+		annotation SummarizationSetBy = Automatic
+
+	column jour
+		dataType: int64
+		formatString: 0
+		lineageTag: beaf8a32-1c83-47aa-b209-2a4a0b806ee8
+		summarizeBy: sum
+		sourceColumn: jour
+
+		annotation SummarizationSetBy = Automatic
+
+	column jour_semaine
+		dataType: int64
+		formatString: 0
+		lineageTag: 2f46cc68-3fe8-4314-8145-28d57f77d8fe
+		summarizeBy: sum
+		sourceColumn: jour_semaine
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_date = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataRoot & "dim_date.csv"),[Delimiter=",", Columns=6, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Modifier le type" = Table.TransformColumnTypes(Source,{{"Column1", type text}, {"Column2", type text}, {"Column3", type text}, {"Column4", type text}, {"Column5", type text}, {"Column6", type text}}),
+				    #"En-têtes promus" = Table.PromoteHeaders(#"Modifier le type", [PromoteAllScalars=true]),
+				    #"Type modifié" = Table.TransformColumnTypes(#"En-têtes promus",{{"date", type date}, {"annee", Int64.Type}, {"trimestre", Int64.Type}, {"mois", Int64.Type}, {"jour", Int64.Type}, {"jour_semaine", Int64.Type}})
+				in
+				    #"Type modifié"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table

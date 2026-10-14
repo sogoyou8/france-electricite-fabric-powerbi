@@ -1,0 +1,41 @@
+# Power BI local-only
+**/.pbi/localSettings.json
+**/.pbi/cache.abf
+*.pbix
+*.pdf
+*.zip
+
+# Raw / other derived datasets (public demo Gold CSV files are deliberately included)
+data/raw/
+data/processed/
+*.csv
+!data/demo/
+!data/demo/*.csv
+*.parquet
+_delta_log/
+
+# Spark and Python
+.databricks/
+spark-warehouse/
+metastore_db/
+derby.log
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

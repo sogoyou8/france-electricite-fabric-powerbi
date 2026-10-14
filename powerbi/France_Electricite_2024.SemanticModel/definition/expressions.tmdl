@@ -1,0 +1,1 @@
+expression DataRoot = "C:\data\france-electricite-2024\" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]

@@ -1,0 +1,34 @@
+table dim_region
+	lineageTag: dbdb6263-10f5-489a-9bd7-6882884c3d4d
+
+	column code_insee_region
+		dataType: int64
+		formatString: 0
+		lineageTag: 935f3274-d266-40c2-8e09-b9cacd2cdb04
+		summarizeBy: none
+		sourceColumn: code_insee_region
+
+		annotation SummarizationSetBy = Automatic
+
+	column region
+		dataType: string
+		lineageTag: 28e1af8d-925c-4d08-a968-a08bc7b467e4
+		summarizeBy: none
+		sourceColumn: region
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_region = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataRoot & "dim_region.csv"),[Delimiter=",", Columns=2, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+				    #"Modifier le type" = Table.TransformColumnTypes(Source,{{"Column1", type text}, {"Column2", type text}}),
+				    #"En-têtes promus" = Table.PromoteHeaders(#"Modifier le type", [PromoteAllScalars=true]),
+				    #"Type modifié" = Table.TransformColumnTypes(#"En-têtes promus",{{"code_insee_region", Int64.Type}, {"region", type text}})
+				in
+				    #"Type modifié"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table

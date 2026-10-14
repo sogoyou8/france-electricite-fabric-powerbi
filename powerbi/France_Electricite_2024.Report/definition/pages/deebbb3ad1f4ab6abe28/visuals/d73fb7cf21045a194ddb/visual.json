@@ -1,0 +1,74 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
+  "name": "d73fb7cf21045a194ddb",
+  "position": {
+    "x": 1428.0812641083521,
+    "y": 0,
+    "z": 7,
+    "height": 212.37020316027088,
+    "width": 236.20767494356659,
+    "tabOrder": 7
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_date"
+                    }
+                  },
+                  "Property": "Écart contrôle renouvelables (TWh)"
+                }
+              },
+              "queryRef": "dim_date.Écart contrôle renouvelables (TWh)",
+              "nativeQueryRef": "Écart contrôle renouvelables (TWh)"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "dim_date"
+                  }
+                },
+                "Property": "Écart contrôle renouvelables (TWh)"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "192a0d381679786f62ba",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_date"
+              }
+            },
+            "Property": "Écart contrôle renouvelables (TWh)"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}
