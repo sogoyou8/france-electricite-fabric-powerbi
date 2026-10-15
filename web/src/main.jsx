@@ -11,6 +11,7 @@ import './interface-v4.css';
 import './interface-v4-2.css';
 import './interface-v4-3.css';
 import './interface-v5.css';
+import './interface-v5-1.css';
 
 const REPO='https://github.com/sogoyou8/france-electricite-fabric-powerbi';
 const NAV=[['exploration','Explorer'],['comparaison','Comparer'],['tracabilite','Traçabilité']];
