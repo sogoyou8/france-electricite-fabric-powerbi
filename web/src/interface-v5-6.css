@@ -1,0 +1,338 @@
+/* V5.6: one-screen recruiter showcase without the pipeline/footer chrome.
+ * Technical provenance, Gold tables and methodology live in a floating
+ * command workspace opened from the header, not a full-height side drawer.
+ */
+
+/* Preserve V5.5 fixed desktop layout while reinvesting the freed height in
+ * the timeline and A/B comparison. The grid now has precisely FOUR rows. */
+@media (min-width:1160px) and (min-height:620px) {
+  .cockpit-v42.cockpit-v5.v56-cockpit .v5-body {
+    grid-template-rows:
+      clamp(50px,8vh,68px)
+      clamp(58px,9vh,74px)
+      minmax(0,1fr)
+      clamp(236px,calc(24vh + 56px),248px);
+  }
+  .cockpit-v42.cockpit-v5.v56-cockpit .v5-lower {
+    min-height:0;
+    overflow:hidden;
+  }
+  .cockpit-v42.cockpit-v5.v56-cockpit .v5-trend {
+    padding-top:15px;
+    padding-bottom:13px;
+  }
+  .cockpit-v42.cockpit-v5.v56-cockpit .v5-trend .section-heading h2 {
+    font-size:17px;
+  }
+  .cockpit-v42.cockpit-v5.v56-cockpit .v53-compare {
+    padding-top:15px;
+    padding-bottom:13px;
+    justify-content:flex-start;
+  }
+  .cockpit-v42.cockpit-v5.v56-cockpit .v53-select-row {
+    margin-top:11px;
+    margin-bottom:11px;
+  }
+  .cockpit-v42.cockpit-v5.v56-cockpit .v53-numbers{
+    min-height:59px;
+    padding:9px 0;
+  }
+  .cockpit-v42.cockpit-v5.v56-cockpit .v53-bars{
+    flex-basis:27px;
+    gap:5px;
+    margin-top:7px;
+  }
+  .cockpit-v42.cockpit-v5.v56-cockpit .v53-comparison-note {
+    margin-top:auto;
+  }
+}
+@media (min-width:1160px) and (min-height:620px) and (max-height:730px) {
+  .cockpit-v42.cockpit-v5.v56-cockpit .v5-body{
+    grid-template-rows: 50px 58px minmax(0,1fr) 236px;
+  }
+  .cockpit-v42.cockpit-v5.v56-cockpit .v53-compare{
+    padding-top:11px;
+    padding-bottom:8px;
+  }
+}
+.cockpit-v5.v56-cockpit .v56-header-data{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  color:#dce8f4;
+  padding:7px 9px!important;
+  border:1px solid transparent!important;
+  border-radius:7px;
+  transition:background .16s,border-color .16s;
+}
+.cockpit-v5.v56-cockpit .v56-header-data:hover,
+.cockpit-v5.v56-cockpit .v56-header-data[aria-expanded="true"]{
+  text-decoration:none!important;
+  color:#fff!important;
+  background:#ffffff13!important;
+  border-color:#ffffff30!important;
+}
+.cockpit-v5.v56-cockpit .v56-header-data>span{font-size:12px;line-height:1}
+
+/* Elegant popover workspace: small visual displacement from the toolbar,
+ * not the old fullscreen sheet or a new navigational page. */
+.cockpit-v5 .v56-overlay{
+  position:fixed;
+  inset:0;
+  z-index:110;
+  display:flex;
+  align-items:flex-start;
+  justify-content:flex-end;
+  padding:72px clamp(16px,2.4vw,38px) 20px;
+  isolation:isolate;
+}
+.cockpit-v5 .v56-backdrop{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  border:0;
+  border-radius:0;
+  background:rgba(12,28,47,.27);
+  backdrop-filter:blur(3px);
+  -webkit-backdrop-filter:blur(3px);
+  cursor:default;
+  animation:v56-fade .17s ease-out both;
+}
+.cockpit-v5 .v56-command{
+  position:relative;
+  z-index:1;
+  width:min(920px,calc(100vw - 46px));
+  height:min(700px,calc(100dvh - 92px));
+  min-height:0;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  color:#213b55;
+  background:linear-gradient(145deg,#fafdff,#f0f5fb);
+  border:1px solid #c0d1e2;
+  border-radius:15px;
+  box-shadow:
+    0 24px 70px #0a182c55,
+    0 7px 24px #18365321,
+    inset 0 1px #ffffffc0;
+  transform-origin:95% 0;
+  animation:v56-enter .21s cubic-bezier(.2,.8,.2,1) both;
+}
+.cockpit-v5 .v56-command-header{
+  flex:0 0 70px;
+  min-height:0;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  padding:12px 24px;
+  background:linear-gradient(95deg,#e9f1fa,#f6f9fd);
+  border-bottom:1px solid #cfdeec;
+}
+.cockpit-v5 .v56-command-identity{display:flex;align-items:center;gap:12px;min-width:0}
+.cockpit-v5 .v56-command-mark{
+  flex:0 0 36px;
+  display:grid;
+  place-items:center;
+  width:36px;height:36px;
+  background:#233950;
+  color:#eff6ff;
+  font-size:20px;
+  line-height:1;
+  border:1px solid #4b6987;
+  border-radius:9px;
+  box-shadow:0 4px 12px #17355124;
+}
+.cockpit-v5 .v56-command-eyebrow{
+  display:block;
+  font-size:10px;
+  font-weight:730;
+  letter-spacing:.075em;
+  text-transform:uppercase;
+  color:#62809c;
+}
+.cockpit-v5 .v56-command-header h2{
+  margin:4px 0 0;
+  font-size:21px;
+  line-height:1.1;
+  letter-spacing:-.035em;
+  font-weight:750;
+  color:#1e354c;
+}
+.cockpit-v5 .v56-command-close{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  height:32px;
+  padding:0 9px;
+  border-radius:7px;
+  border:1px solid #c6d7e8;
+  background:#ffffffbe;
+  color:#3b5873;
+  cursor:pointer;
+  font-size:20px;
+  line-height:1;
+}
+.cockpit-v5 .v56-command-close small{
+  color:#7992a7;
+  font-size:10px;
+  font-weight:600;
+}
+.cockpit-v5 .v56-command-close:hover{background:#e7f1fb;border-color:#97b9da}
+.cockpit-v5 .v56-command-navigation{
+  flex:0 0 50px;
+  min-height:0;
+  display:flex;
+  align-items:stretch;
+  gap:6px;
+  padding:8px 20px;
+  border-bottom:1px solid #d3e0ee;
+  background:#f4f8fd;
+}
+.cockpit-v5 .v56-command-tab{
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  min-width:0;
+  padding:6px 12px;
+  border:1px solid transparent;
+  border-radius:7px;
+  background:transparent;
+  font-size:12px;
+  font-weight:650;
+  white-space:nowrap;
+  color:#607993;
+  cursor:pointer;
+}
+.cockpit-v5 .v56-command-tab-number{color:#91a6b9;font-size:10px;font-variant-numeric:tabular-nums}
+.cockpit-v5 .v56-command-tab:hover{background:#e5eef8;color:#244c71}
+.cockpit-v5 .v56-command-tab.is-active{
+  background:#fff;
+  color:#255c91;
+  border-color:#cbdceb;
+  box-shadow:0 2px 7px #2e547017;
+}
+.cockpit-v5 .v56-command-tab.is-active .v56-command-tab-number{color:#477bab}
+.cockpit-v5 .v56-command-context{
+  flex:0 0 54px;
+  min-height:0;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+  padding:10px 24px;
+  border-bottom:1px solid #d6e3ef;
+}
+.cockpit-v5 .v56-command-context p{
+  margin:3px 0 0;
+  font-size:12px;
+  font-weight:570;
+  color:#536f88;
+}
+.cockpit-v5 .v56-command-context-meta{
+  font-size:10.5px;
+  color:#7a90a5;
+  white-space:nowrap;
+}
+.cockpit-v5 .v56-command-context-meta i{
+  display:inline-block;width:3px;height:3px;
+  margin:0 5px 2px;border-radius:50%;
+  background:#94abc0;
+}
+.cockpit-v5 .v56-command-body{
+  flex:1 1 0%;
+  min-height:0;
+  overflow:auto;
+  padding:18px 24px 24px;
+  overscroll-behavior:contain;
+  scrollbar-width:thin;
+  scrollbar-color:#afc5d9 transparent;
+}
+.cockpit-v5 .v56-command-body .v52-data-view{
+  min-height:0;
+  width:100%;
+}
+.cockpit-v5 .v56-command-body .v52-data-toolbar{
+  top:-18px;
+  margin:0 0 12px;
+  padding:10px 0;
+  background:#f5f9fd;
+  z-index:3;
+}
+.cockpit-v5 .v56-command-body .v52-data-content{overflow-y:visible}
+.cockpit-v5 .v56-command-body .v52-daily-table{min-width:610px}
+.cockpit-v5 .v56-command-body .v52-daily-table thead th{background:#e9f1f8}
+.cockpit-v5 .v56-command-body .v52-chart-panel{padding:9px 0}
+.cockpit-v5 .v56-command-body .v52-chart-panel .stacked-chart{max-height:none}
+.cockpit-v5 .v56-command-body .ranking{padding:2px 0 0;overflow:visible}
+.cockpit-v5 .v56-command-body .ranking .table-viewport{max-height:none;overflow-x:auto;overflow-y:visible}
+.cockpit-v5 .v56-command-body .lineage{padding:2px 0 15px}
+.cockpit-v5 .v56-command-body .lineage-heading{align-items:center}
+.cockpit-v5 .v56-command-body .lineage-heading h2{font-size:21px}
+.cockpit-v5 .v56-command-body .lineage-flow{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 0}
+.cockpit-v5 .v56-command-body .lineage-flow>div:nth-child(4){padding-left:0;border-left:0}
+.cockpit-v5 .v56-command-body .lineage-flow>div{min-width:0}
+.cockpit-v5 .v56-command-body .methodology{padding:0;margin:0;max-width:100%}
+.cockpit-v5 .v56-command-body .method-steps{grid-template-columns:repeat(2,minmax(0,1fr));gap:0 24px}
+.cockpit-v5 .v56-command-body .method-steps section{padding:14px 0}
+.cockpit-v5 .v56-command-footer{
+  flex:0 0 31px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding:0 24px;
+  border-top:1px solid #d0dfec;
+  background:#eaf2fa;
+  font-size:10.5px;
+  color:#738aa0;
+}
+.cockpit-v5 .v56-command-footer kbd{
+  display:inline-flex;
+  align-items:center;
+  padding:1px 5px;
+  background:#f9fcff;
+  border:1px solid #cfdfec;
+  border-radius:4px;
+  font-family:inherit;
+  color:#587691;
+  font-size:10px;
+}
+@keyframes v56-enter{
+  0%{opacity:0;transform:translateY(-11px) scale(.975)}
+  100%{opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes v56-fade{from{opacity:0}to{opacity:1}}
+@media(max-width:790px){
+  .cockpit-v5 .v56-overlay{
+    padding:12px;
+    align-items:center;
+    justify-content:center;
+  }
+  .cockpit-v5 .v56-command{
+    width:100%;
+    height:min(740px,calc(100dvh - 24px));
+    max-height:calc(100dvh - 24px);
+    border-radius:13px;
+    transform-origin:50% 50%;
+  }
+  .cockpit-v5 .v56-command-header{flex-basis:62px;padding:10px 14px}
+  .cockpit-v5 .v56-command-header h2{font-size:18px}
+  .cockpit-v5 .v56-command-navigation{padding:6px 9px;gap:2px;overflow-x:auto}
+  .cockpit-v5 .v56-command-tab{font-size:11px;padding:7px 9px}
+  .cockpit-v5 .v56-command-tab-number{display:none}
+  .cockpit-v5 .v56-command-context{padding:9px 14px;min-height:48px}
+  .cockpit-v5 .v56-command-context-meta{display:none}
+  .cockpit-v5 .v56-command-body{padding:12px 14px 22px}
+  .cockpit-v5 .v56-command-body .method-steps{grid-template-columns:1fr}
+  .cockpit-v5 .v56-command-body .lineage-flow{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cockpit-v5 .v56-command-footer{padding:0 14px}
+}
+@media(max-width:430px){
+  .cockpit-v5 .v56-command-tab{padding:7px 5px;font-size:10.5px}
+  .cockpit-v5 .v56-command-close small{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .cockpit-v5 .v56-command,.cockpit-v5 .v56-backdrop{animation:none}
+  .cockpit-v5.v56-cockpit .v56-header-data{transition:none}
+}
