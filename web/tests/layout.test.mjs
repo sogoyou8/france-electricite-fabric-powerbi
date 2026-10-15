@@ -56,3 +56,24 @@ test('Floating toolbar workspace keeps source and methodology available',()=>{
  assert.match(compact,/@media\(prefers-reduced-motion:reduce\)/);
  assert.match(compact,/\.v56-command-body/);
 });
+
+const v57=await readFile(new URL('../src/interface-v5-7.css',import.meta.url),'utf8');
+test('V5.7 reserves safe KPI heights without returning to a long scrolling page',()=>{
+ assert.match(main,/import '\.\/interface-v5-7\.css'/);
+ assert.match(v57,/\.cockpit-v42\.cockpit-v5\.v56-cockpit \.v5-body/);
+ assert.match(v57,/clamp\(80px,10vh,88px\)/);
+ assert.match(v57,/grid-template-rows:50px 80px minmax\(0,1fr\) 230px/);
+ assert.match(v57,/\.stat-item strong\s*\{[^}]*line-height:1\.08/);
+ assert.match(v57,/\.stat-item span\s*\{[^}]*margin:0 0 4px/);
+});
+test('V5.7 removes redundant floating palette context without losing data tabs',()=>{
+ assert.doesNotMatch(main,/className="v56-command-context"/);
+ assert.doesNotMatch(main,/aria-describedby="v56-command-subtitle"/);
+ assert.match(main,/function DataCommandPanel\(/);
+ assert.match(main,/role="dialog" aria-modal="true"/);
+ assert.match(main,/DATA_PANELS\.map/);
+ assert.match(main,/active==='donnees'&&<V52DataDrawer/);
+ assert.match(main,/active==='pipeline'&&<DataLineage\/>/);
+ assert.match(main,/active==='methode'&&<Methodology\/>/);
+ assert.match(v57,/\.v56-command-header\s*\{/);
+});
