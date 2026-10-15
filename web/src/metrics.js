@@ -22,7 +22,7 @@ export function parseCSV(content) {
     return Object.fromEntries(keys.map((key,i)=>[key,cols[i]]));
   });
 }
-export function loadGoldFacts(factsCSV, regionsCSV) {
+export function loadGoldFacts(factsCSV, regionsCSV, datesCSV=null) {
   const regions = parseCSV(regionsCSV);
   const lookup = Object.fromEntries(regions.map(r=>[r.code_insee_region,r.region]));
   const rows = parseCSV(factsCSV).map(raw=>{
@@ -36,8 +36,12 @@ export function loadGoldFacts(factsCSV, regionsCSV) {
   });
   const days=new Set(rows.map(r=>r.date));
   const keys=new Set(rows.map(r=>r.code_insee_region));
-  if(rows.length!==372||days.size!==31||keys.size!==12) throw new Error('Export Gold incomplet : 31 jours × 12 régions attendus.');
-  return {rows,regions};
+  const unique=new Set(rows.map(r=>r.date+'|'+r.code_insee_region));
+  if(rows.length!==372||days.size!==31||keys.size!==12||unique.size!==372||regions.length!==12) throw new Error('Export Gold incomplet ou doublonné : 31 jours × 12 régions attendus.');
+  if(rows.some(r=>r.nb_demi_heures!==48)) throw new Error('Granularité Gold incorrecte : 48 demi-heures attendues par jour et région.');
+  const dates=datesCSV==null?[]:parseCSV(datesCSV);
+  if(datesCSV!=null&&(dates.length!==31||new Set(dates.map(d=>d.date)).size!==31||dates.some(d=>!days.has(d.date)))) throw new Error('Dimension date incohérente avec les faits Gold.');
+  return {rows,regions,dates};
 }
 export function selectFacts(rows, {region='all',start='2024-01-01',end='2024-01-31'}={}){
   return rows.filter(r=>(region==='all'||r.code_insee_region===region)&&r.date>=start&&r.date<=end);
@@ -82,4 +86,30 @@ export function rowsCSV(rows){
   const out=[keys.join(';')];
   for(const r of rows)out.push(keys.map(k=>String(r[k]??'').replaceAll(';',',')).join(';'));
   return '\uFEFF'+out.join('\r\n')+'\r\n';
+}
+
+
+// Observations descriptives uniquement : elles sont recalculées à chaque sélection.
+// Les comparaisons régionales portent sur la période commune, pas sur des flux d'échange.
+export function observationsFor(periodRows, selectedRows, focusKey='all'){
+  const key=focusKey==='all'?'production_mwh':focusKey;
+  if(key!=='production_mwh'&&!ENERGY_FIELDS.some(f=>f.key===key)) throw new Error('Filière inconnue.');
+  const regions=byRegion(periodRows).sort((a,b)=>b[key]-a[key]);
+  const days=byDate(selectedRows).sort((a,b)=>b[key]-a[key]);
+  const totals=summarize(selectedRows);
+  const leader=regions[0],peak=days[0];
+  const source=ENERGY_FIELDS.find(f=>f.key===focusKey);
+  const leadingSource=[...ENERGY_FIELDS].sort((a,b)=>totals[b.key]-totals[a.key])[0];
+  const displayedSource=source||leadingSource;
+  const sourceMwh=totals[displayedSource.key]||0;
+  const share=totals.production_mwh>0?sourceMwh/totals.production_mwh*100:null;
+  return [
+    {id:'leader',label:'Région en tête · période',value:leader?.region||'—',
+      detail:leader?twh(leader[key],2)+' TWh · '+(source?source.name.toLowerCase():'production étudiée'):'Aucune région'},
+    {id:'peak',label:'Jour de pointe · sélection',value:peak?.date||'—',
+      detail:peak?twh(peak[key],3)+' TWh · '+(source?source.name.toLowerCase():'production étudiée'):'Aucun jour'},
+    {id:'mix',label:source?'Poids dans le mix · sélection':'Première filière · sélection',
+      value:source?pct(share,1):displayedSource.name,
+      detail:source?source.name+' · part des six filières':pct(share,1)+' de la production étudiée'}
+  ];
 }
