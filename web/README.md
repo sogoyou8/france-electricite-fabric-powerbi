@@ -19,6 +19,16 @@ Le layout privilégie une **vue desktop 1440 × 900 sans scrolling principal**. 
 
 Les comparaisons sont des **volumes absolus** : un différentiel entre régions ne mesure pas les échanges électriques. La production étudiée (six filières) et les parts renouvelables sont conformes aux définitions Gold du rapport Power BI.
 
+### V5.5 — stabilité du cockpit à hauteur réduite
+
+- La disposition mono-écran est conservée sur les fenêtres desktop d'au moins 1160 px de large et 620 px de hauteur CSS, même quand les barres du navigateur réduisent le viewport.
+- Les anciennes règles V4.2 qui réactivent le défilement sous 770 px sont neutralisées pour V5 ; la carte et le mix restent dans leur zone.
+- La carte reprend le cadrage sûr de V5.3 (55 8 650 580) et les noms régionaux restent lisibles.
+- Les axes numériques adaptatifs de V5.4, le panneau Gold Tableau/Graphique et les exports sont conservés.
+- Sur mobile, tablette ou fenêtre plus basse que 620 px, le défilement reste volontaire.
+
+Les tests de régression statiques complètent la vérification des données et la compilation ; la recette visuelle reste nécessaire.
+
 ## Installation et tests
 
 ```sh
