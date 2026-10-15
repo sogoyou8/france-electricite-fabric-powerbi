@@ -1,0 +1,98 @@
+/* V5.7 — compact KPI-safe geometry and lighter data command header.
+   The previous desktop grid allowed only 58–74 px for a two-line KPI
+   (caption + large number). Browser toolbars caused the values to extend
+   over the dividing rule. We reserve a genuine KPI row and budget the
+   remaining area explicitly without introducing page scroll. */
+
+@media (min-width:1160px) and (min-height:620px) {
+  .cockpit-v42.cockpit-v5.v56-cockpit .v5-body {
+    grid-template-rows:
+      clamp(50px,8vh,68px)
+      clamp(80px,10vh,88px)
+      minmax(0,1fr)
+      clamp(230px,calc(24vh + 50px),248px);
+  }
+  .cockpit-v42.cockpit-v5.v56-cockpit .stat-strip {
+    display:grid;
+    height:100%;
+    min-height:0;
+    padding:8px 0;
+    align-items:center;
+    overflow:visible;
+    box-sizing:border-box;
+  }
+  .cockpit-v42.cockpit-v5.v56-cockpit .stat-item {
+    min-height:0;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:flex-start;
+    overflow:visible;
+  }
+  .cockpit-v42.cockpit-v5.v56-cockpit .stat-item span {
+    display:block;
+    margin:0 0 4px;
+    line-height:1.2;
+    font-size:11.5px;
+  }
+  .cockpit-v42.cockpit-v5.v56-cockpit .stat-item strong {
+    display:block;
+    margin:0;
+    line-height:1.08;
+    font-size:clamp(26px,2.08vw,34px);
+    white-space:nowrap;
+  }
+}
+@media (min-width:1160px) and (min-height:620px) and (max-height:730px) {
+  .cockpit-v42.cockpit-v5.v56-cockpit .v5-body {
+    grid-template-rows:50px 80px minmax(0,1fr) 230px;
+  }
+  .cockpit-v42.cockpit-v5.v56-cockpit .stat-item strong {
+    font-size:clamp(25px,2vw,31px);
+  }
+}
+
+/* Keep the floating command workspace, but remove the redundant metadata
+   strip below its four tabs. The current subsection is already identified
+   by the active tab; the Gold view itself shows period and view controls. */
+.cockpit-v5 .v56-command-header {
+  flex:0 0 62px;
+  padding:9px 22px;
+}
+.cockpit-v5 .v56-command-mark {
+  flex-basis:32px;
+  width:32px;
+  height:32px;
+  font-size:18px;
+}
+.cockpit-v5 .v56-command-header h2 {
+  font-size:20px;
+}
+.cockpit-v5 .v56-command-navigation {
+  flex:0 0 46px;
+  padding:6px 20px;
+}
+.cockpit-v5 .v56-command-body {
+  padding-top:14px;
+}
+.cockpit-v5 .v56-command-body .v52-data-toolbar {
+  top:-14px;
+  padding:8px 0;
+  margin-bottom:12px;
+}
+@media (max-width:790px) {
+  .cockpit-v5 .v56-command-header {
+    flex-basis:58px;
+    padding:9px 14px;
+  }
+  .cockpit-v5 .v56-command-navigation {
+    flex-basis:43px;
+    padding:5px 9px;
+  }
+  .cockpit-v5 .v56-command-body {
+    padding:12px 14px 22px;
+  }
+  .cockpit-v5 .v56-command-body .v52-data-toolbar {
+    top:-12px;
+  }
+}
