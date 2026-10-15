@@ -1,4 +1,4 @@
-import React, {useEffect,useMemo,useState} from 'react';
+import React, {useEffect,useMemo,useRef,useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import regionsGeo from './regions-outline.json';
 import {
@@ -16,6 +16,7 @@ import './interface-v5-2.css';
 import './interface-v5-3.css';
 import './interface-v5-4.css';
 import './interface-v5-5.css';
+import './interface-v5-6.css';
 
 const REPO='https://github.com/sogoyou8/france-electricite-fabric-powerbi';
 const NAV=[['exploration','Explorer'],['comparaison','Comparer'],['tracabilite','Traçabilité']];
@@ -42,7 +43,7 @@ function Export({rows}){
     a.href=url;a.download='france-electricite-2024-selection.csv';a.click();
     setTimeout(()=>URL.revokeObjectURL(url),1000);
   }
-  return <button className="export-command" type="button" disabled={!rows.length} onClick={download}>Exporter les données <span aria-hidden="true">↓</span></button>;
+  return <button className="export-command" type="button" disabled={!rows.length} onClick={download}>Exporter CSV <span aria-hidden="true">↓</span></button>;
 }
 function DateField({label,value,min,max,onChange}){
  return <label className="date-control"><span>{label}</span><input aria-label={label} type="date" value={value} min={min} max={max} onChange={event=>onChange(event.target.value)}/></label>;
@@ -339,18 +340,6 @@ function V5Compare({regions,focusKey,firstCode,secondCode,onFirst,onSecond,onDet
   </div>
  </section>;
 }
-function V5Pipeline({onOpen}){
- const stages=[{title:'RTE / ODRÉ',meta:'17 856 relevés'},{title:'Databricks',meta:'PySpark · Delta'},{title:'Gold / SQL',meta:'372 jours-régions'},{title:'Power BI + Web',meta:'Restitution'}];
- return <section className="v5-pipeline" aria-label="Chaîne de traitement des données">
-  <span className="v5-pipeline-label">Du brut à l'analyse</span>
-  <div className="v5-pipeline-stages">{stages.map((stage,i)=><React.Fragment key={stage.title}>
-   {i>0&&<span className="v5-pipeline-arrow" aria-hidden="true">→</span>}
-   <div className="v5-pipeline-stage"><strong>{stage.title}</strong><small>{stage.meta}</small></div>
-  </React.Fragment>)}</div>
-  <button type="button" className="v5-subtle-action v5-pipeline-action" onClick={onOpen}>Voir la chaîne ↗</button>
- </section>;
-}
-
 function V52DataDrawer({daily,focusKey}){
  const [view,setView]=useState('table');
  const focus=ENERGY_FIELDS.find(f=>f.key===focusKey);
@@ -375,9 +364,49 @@ function V52DataDrawer({daily,focusKey}){
  </section>;
 }
 
+
+const DATA_PANELS=[
+ {key:'donnees',label:'Données Gold',short:'Gold',description:'31 jours, mesures et graphiques'},
+ {key:'regions',label:'12 régions',short:'Régions',description:'Comparer les territoires'},
+ {key:'pipeline',label:'Chaîne DATA',short:'Pipeline',description:'De la source à la restitution'},
+ {key:'methode',label:'Méthode',short:'Méthode',description:'Définitions et limites'}
+];
+function DataCommandPanel({active,onClose,onNavigate,panelRef,daily,focusKey,regions,scope,onSelectRegion}){
+ const current=DATA_PANELS.find(p=>p.key===active)||DATA_PANELS[0];
+ return <div className="v56-overlay" data-testid="data-command-overlay">
+  <button type="button" className="v56-backdrop" tabIndex={-1} aria-label="Fermer les données" onClick={onClose}/>
+  <section ref={panelRef} className="v56-command" role="dialog" aria-modal="true" aria-labelledby="v56-command-title" aria-describedby="v56-command-subtitle">
+   <header className="v56-command-header">
+    <div className="v56-command-identity"><span className="v56-command-mark" aria-hidden="true">▦</span><div>
+     <span className="v56-command-eyebrow">France / Électricité · janvier 2024</span>
+     <h2 id="v56-command-title">Explorateur de données</h2>
+    </div></div>
+    <button type="button" className="v56-command-close" data-autofocus aria-label="Fermer le panneau de données" onClick={onClose}><span aria-hidden="true">×</span><small>Échap</small></button>
+   </header>
+   <div className="v56-command-navigation" role="tablist" aria-label="Sections du panneau">
+    {DATA_PANELS.map((entry,index)=><button key={entry.key} type="button" role="tab"
+     id={'v56-tab-'+entry.key} aria-controls="v56-command-content" aria-selected={active===entry.key}
+     tabIndex={active===entry.key?0:-1} className={'v56-command-tab'+(active===entry.key?' is-active':'')}
+     onClick={()=>onNavigate(entry.key)}><span className="v56-command-tab-number">0{index+1}</span>{entry.label}</button>)}
+   </div>
+   <div className="v56-command-context"><div><span className="v56-command-eyebrow">{current.label}</span><p id="v56-command-subtitle">{current.description}</p></div><span className="v56-command-context-meta">RTE / ODRÉ <i/> Gold 2024</span></div>
+   <div className="v56-command-body" role="tabpanel" id="v56-command-content" aria-labelledby={'v56-tab-'+active}>
+    {active==='donnees'&&<V52DataDrawer daily={daily} focusKey={focusKey}/>}
+    {active==='regions'&&<><p className="v5-drawer-intro">Choisissez une région : les indicateurs du cockpit se mettront à jour.</p><RegionTable allRegions={regions} selected={scope} onSelect={onSelectRegion} focusKey={focusKey}/></>}
+    {active==='pipeline'&&<DataLineage/>}
+    {active==='methode'&&<Methodology/>}
+   </div>
+   <footer className="v56-command-footer"><span>12 régions · 6 filières · données figées</span><span><kbd>Échap</kbd> Fermer</span></footer>
+  </section>
+ </div>;
+}
+
 function App(){
  const [data,setData]=useState(null),[error,setError]=useState('');
  const [drawer,setDrawer]=useState('');
+ const panelRef=useRef(null),lastTriggerRef=useRef(null);
+ const openPanel=section=>{lastTriggerRef.current=document.activeElement;setDrawer(section)};
+ const closePanel=()=>{setDrawer('');lastTriggerRef.current?.focus?.()};
  const [scope,setScope]=useState('all'),[mapMetric,setMapMetric]=useState('production_mwh'),[focusKey,setFocusKey]=useState('all');
  const [start,setStart]=useState('2024-01-01'),[end,setEnd]=useState('2024-01-31');
  const [compareA,setCompareA]=useState(''),[compareB,setCompareB]=useState('');
@@ -390,7 +419,18 @@ function App(){
  },[]);
  useEffect(()=>{
   if(!drawer)return undefined;
-  const onKey=event=>{if(event.key==='Escape')setDrawer('')};
+  const panel=panelRef.current;
+  panel?.querySelector('[data-autofocus]')?.focus();
+  const onKey=event=>{
+   if(event.key==='Escape'){event.preventDefault();setDrawer('');lastTriggerRef.current?.focus?.();return;}
+   if(event.key==='Tab'&&panel){
+    const controls=[...panel.querySelectorAll('button:not([disabled]):not([tabindex="-1"]),a[href],input:not([disabled]),select:not([disabled]),[tabindex="0"]')].filter(node=>node.getClientRects().length>0);
+    if(!controls.length)return;
+    const first=controls[0],last=controls[controls.length-1];
+    if(event.shiftKey&&(document.activeElement===first||!panel.contains(document.activeElement))){event.preventDefault();last.focus();}
+    else if(!event.shiftKey&&(document.activeElement===last||!panel.contains(document.activeElement))){event.preventDefault();first.focus();}
+   }
+  };
   document.addEventListener('keydown',onKey);
   return()=>document.removeEventListener('keydown',onKey);
  },[drawer]);
@@ -419,7 +459,7 @@ function App(){
    <div className="v5-header-actions">
     <a href={REPO} target="_blank" rel="noreferrer">GitHub ↗</a>
     <a href={REPO+'/tree/main/powerbi'} target="_blank" rel="noreferrer">Modèle Power BI ↗</a>
-    <button className="v5-header-data" type="button" onClick={()=>setDrawer('donnees')}>Données ↓</button>
+    <button className="v5-header-data v56-header-data" type="button" aria-haspopup="dialog" aria-expanded={Boolean(drawer)} onClick={()=>drawer?closePanel():openPanel('donnees')}>Données <span aria-hidden="true">{drawer?'×':'▾'}</span></button>
     <Export rows={selected}/>
    </div>
   </header>
@@ -428,7 +468,7 @@ function App(){
     <section className="v5-hero">
      <div className="v5-hero-copy">
       <span className="v5-kicker">Janvier 2024 · 12 régions · 6 filières</span>
-      <h1>L’électricité française, décryptée.</h1>
+      <h1>L’électricité française</h1>
      </div>
      <div className="v5-controls">
       <label className="v5-region-control"><span>Territoire</span><select aria-label="Territoire étudié" value={scope} onChange={e=>setScope(e.target.value)}><option value="all">France · 12 régions</option>{data.regions.map(r=><option key={r.code_insee_region} value={r.code_insee_region}>{r.region}</option>)}</select></label>
@@ -447,27 +487,12 @@ function App(){
      <div className="v5-trend">
       <TrendSection daily={daily} focusKey={focusKey} peak={peak}/>
      </div>
-     <V5Compare regions={sortedRegions} focusKey={focusKey} firstCode={firstCode} secondCode={secondCode} onFirst={chooseFirst} onSecond={chooseSecond} scopeCode={scope} scopeName={name} onUseScope={()=>chooseFirst(scope)} onDetails={()=>setDrawer('regions')}/>
+     <V5Compare regions={sortedRegions} focusKey={focusKey} firstCode={firstCode} secondCode={secondCode} onFirst={chooseFirst} onSecond={chooseSecond} scopeCode={scope} scopeName={name} onUseScope={()=>chooseFirst(scope)} onDetails={()=>openPanel('regions')}/>
     </div>
-    <V5Pipeline onOpen={()=>setDrawer('pipeline')}/>
-    <footer className="v5-footer">
-     <span>Données RTE / ODRÉ · janvier 2024 uniquement · 12 régions hors Corse</span>
-     <div><button type="button" onClick={()=>setDrawer('methode')}>Méthode et limites ↗</button><span aria-hidden="true">·</span><button type="button" onClick={()=>setDrawer('donnees')}>Données détaillées ↗</button></div>
-    </footer>
+
    </>}
   </main>
-  {drawer&&data&&<div className="drawer-layer">
-   <button type="button" className="drawer-backdrop" aria-label="Fermer le panneau" onClick={()=>setDrawer('')}/>
-   <aside className="data-drawer" role="dialog" aria-modal="true" aria-label={{donnees:'Données journalières',methode:'Méthode et limites',regions:'Comparaison des régions',pipeline:'Chaîne des données'}[drawer]}>
-    <div className="drawer-header"><div><span className="v5-kicker">France Électricité · 2024</span><h2>{{donnees:'Données Gold',methode:'Méthode & limites',regions:'Les 12 régions',pipeline:'Chaîne DATA'}[drawer]}</h2></div><button type="button" className="drawer-close" autoFocus onClick={()=>setDrawer('')} aria-label="Fermer le panneau">✕</button></div>
-    <div className="drawer-content">
-     {drawer==='donnees'&&<V52DataDrawer daily={daily} focusKey={focusKey}/>}
-     {drawer==='methode'&&<Methodology/>}
-     {drawer==='regions'&&<><p className="v5-drawer-intro">Sélectionnez une région pour actualiser tous les indicateurs du cockpit.</p><RegionTable allRegions={allRegionSummaries} selected={scope} onSelect={code=>{setScope(code);setDrawer('')}} focusKey={focusKey}/></>}
-     {drawer==='pipeline'&&<DataLineage/>}
-    </div>
-   </aside>
-  </div>}
+  {drawer&&data&&<DataCommandPanel active={drawer} panelRef={panelRef} onClose={closePanel} onNavigate={setDrawer} daily={daily} focusKey={focusKey} regions={allRegionSummaries} scope={scope} onSelectRegion={code=>{setScope(code);closePanel()}}/>}
  </div>;
 }
 createRoot(document.getElementById('root')).render(<App/>);
