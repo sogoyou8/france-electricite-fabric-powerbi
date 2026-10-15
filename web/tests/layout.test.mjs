@@ -30,3 +30,29 @@ test('V5.4 numeric axis precision is retained and original safe map frame restor
  assert.match(main,/import '\.\/interface-v5-5\.css'/);
  assert.match(main,/function V52DataDrawer\(/);
 });
+
+
+const compact=await readFile(new URL('../src/interface-v5-6.css',import.meta.url),'utf8');
+test('V5.6 preserves the recruiter-first one screen by assigning just four rows',()=>{
+ assert.match(main,/cockpit-v5 v56-cockpit/);
+ assert.match(main,/L’électricité française<\/h1>/);
+ assert.doesNotMatch(main,/<V5Pipeline\b/);
+ assert.doesNotMatch(main,/<footer className="v5-footer"/);
+ assert.match(compact,/\.cockpit-v42\.cockpit-v5\.v56-cockpit \.v5-body/);
+ assert.match(compact,/grid-template-rows:\s*clamp\(50px,8vh,68px\)\s*clamp\(58px,9vh,74px\)\s*minmax\(0,1fr\)\s*clamp\(236px,calc\(24vh \+ 56px\),248px\)/);
+ assert.match(compact,/grid-template-rows:\s*50px 58px minmax\(0,1fr\) 236px/);
+});
+test('Floating toolbar workspace keeps source and methodology available',()=>{
+ assert.match(main,/function DataCommandPanel/);
+ assert.match(main,/role="dialog" aria-modal="true"/);
+ assert.match(main,/role="tablist"/);
+ assert.match(main,/aria-expanded=\{Boolean\(drawer\)\}/);
+ assert.match(main,/event\.key==='Escape'/);
+ assert.match(main,/event\.key==='Tab'/);
+ assert.match(main,/active==='donnees'&&<V52DataDrawer/);
+ assert.match(main,/active==='regions'&&/);
+ assert.match(main,/active==='pipeline'&&<DataLineage\/>/);
+ assert.match(main,/active==='methode'&&<Methodology\/>/);
+ assert.match(compact,/@media\(prefers-reduced-motion:reduce\)/);
+ assert.match(compact,/\.v56-command-body/);
+});
