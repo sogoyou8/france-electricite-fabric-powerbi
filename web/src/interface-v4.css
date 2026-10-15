@@ -246,3 +246,68 @@ body { background:#f5f8fc; }
   .cockpit-v4 .daily-table { min-width:610px; }
 }
 @media(prefers-reduced-motion:reduce){html {scroll-behavior:auto;}}
+
+
+/* V4.1 — final readability and keyboard usability pass.
+   Keep the single-page cockpit and existing responsive grid intact. */
+.cockpit-v4 .work-nav a { font-size:13px; }
+.cockpit-v4 .work-ident small { font-size:11.5px; }
+.cockpit-v4 .date-control { font-size:12px; }
+.cockpit-v4 .date-control input { min-height:38px; font-size:12px; }
+.cockpit-v4 .export-command { font-size:12px; min-height:38px; }
+.cockpit-v4 .context-title p { font-size:13px; color:#52687d; }
+.cockpit-v4 .context-scope label { font-size:12px; }
+.cockpit-v4 .context-scope select { font-size:12.5px; }
+.cockpit-v4 .selection-ribbon { font-size:12px; color:#536b82; }
+.cockpit-v4 .selection-ribbon span:last-child { color:#5c7185; }
+.cockpit-v4 .stat-item span { font-size:12.5px; }
+.cockpit-v4 .insights-intro strong { font-size:16px; max-width:210px; }
+.cockpit-v4 .insights-intro small,
+.cockpit-v4 .insight-item small { font-size:12px; color:#5e7388; }
+.cockpit-v4 .insight-item>span { font-size:12px; color:#5b7187; }
+.cockpit-v4 .insight-item strong { font-size:clamp(17px,1.35vw,21px); }
+.cockpit-v4 .map-subtitle,
+.cockpit-v4 .map-instruction,
+.cockpit-v4 .map-scale-text,
+.cockpit-v4 .chart-unit { font-size:12px; color:#586f84; }
+.cockpit-v4 .inspector-description,
+.cockpit-v4 .inspector-footnote { font-size:12px; color:#5b7185; line-height:1.5; }
+.cockpit-v4 .source-line,
+.cockpit-v4 .source-line strong,
+.cockpit-v4 .source-line small,
+.cockpit-v4 .source-button { font-size:12px; }
+.cockpit-v4 .source-button { min-height:27px; }
+.cockpit-v4 .analysis-grid .line-legend { font-size:12px; }
+.cockpit-v4 .panel-intro,
+.cockpit-v4 .scope-note,
+.cockpit-v4 .comparison-heading p,
+.cockpit-v4 .compare-title p { font-size:12px; color:#5e7388; line-height:1.5; }
+.cockpit-v4 .ranking table { font-size:12.5px; }
+.cockpit-v4 .ranking thead th { font-size:11.5px; }
+.cockpit-v4 .ranking tbody tr { cursor:pointer; }
+.cockpit-v4 .ranking tbody tr:focus-visible { outline:2px solid #2e75bc; outline-offset:-2px; }
+.cockpit-v4 .compare-selectors label { font-size:12px; }
+.cockpit-v4 .compare-selectors select { min-height:39px; font-size:12px; padding:8px; }
+.cockpit-v4 .compare-values span { font-size:11.5px; }
+.cockpit-v4 .compare-values small { font-size:11px; }
+.cockpit-v4 .compare-values strong { white-space:normal; overflow-wrap:anywhere; }
+.cockpit-v4 .disclosure-block>summary small { font-size:12px; color:#5d7185; }
+.cockpit-v4 .daily-table thead th { font-size:11.5px; }
+.cockpit-v4 .lineage-flow span,
+.cockpit-v4 .lineage-flow small { font-size:11.5px; color:#5e7387; }
+.cockpit-v4 .lineage-heading a,
+.cockpit-v4 .lineage-links a { font-size:12px; }
+.cockpit-v4 :is(button,select,input,a,summary):focus-visible {
+  outline:2px solid #428bce;
+  outline-offset:2px;
+}
+@media(max-width:650px) {
+  .cockpit-v4 .work-nav a { font-size:12.5px; }
+  .cockpit-v4 .date-control input { font-size:12px; }
+  .cockpit-v4 .insights-intro strong { max-width:none; }
+  .cockpit-v4 .source-line,
+  .cockpit-v4 .source-line strong,
+  .cockpit-v4 .source-line small,
+  .cockpit-v4 .source-button { font-size:11.5px; }
+  .cockpit-v4 .compare-values strong { font-size:15px; }
+}
