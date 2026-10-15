@@ -3,7 +3,7 @@ import {createRoot} from 'react-dom/client';
 import regionsGeo from './regions-outline.json';
 import {
   ENERGY_FIELDS, SOURCE_URL, loadGoldFacts, selectFacts, summarize, byDate, byRegion,
-  twh, pct, frenchNumber, rowsCSV, observationsFor
+  twh, pct, frenchNumber, rowsCSV, observationsFor, axisTickLabels
 } from './metrics.js';
 import './workspace.css';
 import './interface-v3.css';
@@ -14,17 +14,22 @@ import './interface-v5.css';
 import './interface-v5-1.css';
 import './interface-v5-2.css';
 import './interface-v5-3.css';
+import './interface-v5-4.css';
 
 const REPO='https://github.com/sogoyou8/france-electricite-fabric-powerbi';
 const NAV=[['exploration','Explorer'],['comparaison','Comparer'],['tracabilite','Traçabilité']];
 const MAP_COLORS=['#e7eef7','#c7dcf4','#9ec3eb','#6f9fd4','#427cb9','#205a9a','#123c74'];
 // Tight framing preserves every outline while freeing the old horizontal whitespace.
-const V53_MAP_VIEWBOX='55 8 650 580';
+const V53_MAP_VIEWBOX='72 8 616 580';
 const V53_MAP_LABELS={
  '11':['Paris'],'24':['Centre-Val','de Loire'],'27':['Bourgogne','Fr.-Comté'],
  '28':['Normandie'],'32':['Hauts-de','France'],'44':['Grand Est'],
  '52':['Pays de','la Loire'],'53':['Bretagne'],'75':['Nouvelle','Aquitaine'],
  '76':['Occitanie'],'84':['Auvergne','Rhône-Alpes'],'93':['Provence','Alpes']
+};
+const V54_MAP_LABEL_OFFSETS={
+ '11':[0,-3], '24':[4,2], '27':[12,4],
+ '52':[-9,1], '93':[7,2]
 };
 const SHORT_DATE=new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'short',timeZone:'UTC'});
 function formatDate(date){return SHORT_DATE.format(new Date(date+'T12:00:00Z'))}
@@ -81,8 +86,8 @@ function MapFigure({regionData,selected,onSelect,metric,onMetricChange,activeMet
          onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();onSelect(active?'all':region.code)}}}>
          <title>{region.name} — {twh(val,2)} TWh</title>
         </path>
-        {region.short&&<text className={'map-label v53-map-label '+(val/max>.62?'map-label-on-dark':'')} x={region.center[0]} y={region.center[1]} textAnchor="middle" dominantBaseline="middle" pointerEvents="none">
-         {(V53_MAP_LABELS[region.code]||[region.short]).map((line,i,lines)=><tspan key={i} x={region.center[0]} dy={i===0&&lines.length>1?'-0.52em':i>0?'1.12em':'0'}>{line}</tspan>)}
+        {region.short&&<text className={'map-label v53-map-label '+(val/max>.62?'map-label-on-dark':'')+(['24','27','52','93'].includes(region.code)?' v54-label-dense':'')} x={region.center[0]+(V54_MAP_LABEL_OFFSETS[region.code]?.[0]||0)} y={region.center[1]+(V54_MAP_LABEL_OFFSETS[region.code]?.[1]||0)} textAnchor="middle" dominantBaseline="middle" pointerEvents="none">
+         {(V53_MAP_LABELS[region.code]||[region.short]).map((line,i,lines)=><tspan key={i} x={region.center[0]+(V54_MAP_LABEL_OFFSETS[region.code]?.[0]||0)} dy={i===0&&lines.length>1?'-0.52em':i>0?'1.12em':'0'}>{line}</tspan>)}
         </text>}
         {active&&<circle className="selected-dot" cx={region.center[0]} cy={region.center[1]+12} r="3.4"/>}
        </g>
@@ -124,12 +129,13 @@ function LineChart({series,large=false,focusKey='all'}){
  const W=1150,H=large?360:180,left=49,right=17,top=18,bottom=25;
  const values=series.flatMap(r=>[r.production_mwh,r.consommation_mwh]).map(v=>v/1e6);
  const max=Math.max(.2,...values)*1.1,iw=W-left-right,ih=H-top-bottom;
+ const yTicks=axisTickLabels(max);
  const x=i=>left+(series.length<=1?iw/2:i/(series.length-1)*iw),y=v=>top+ih-(v/1e6)/max*ih;
  const path=key=>series.map((r,i)=>(i===0?'M':'L')+x(i).toFixed(1)+' '+y(r[key]).toFixed(1)).join(' ');
  const chosen=index===null?null:series[index];
  const focus=ENERGY_FIELDS.find(f=>f.key===focusKey);
  return <div className="curve-wrap"><svg className={large?'curve-plot curve-large':'curve-plot'} viewBox={'0 0 '+W+' '+H} role="img" aria-label="Consommation et production électriques quotidiennes en TWh">
-   {Array.from({length:5},(_,i)=>{const v=max*i/4;return <g key={i}><line x1={left} x2={W-right} y1={top+ih*(1-i/4)} y2={top+ih*(1-i/4)} stroke="#dfe3e8" strokeWidth="1"/><text x={left-10} y={top+ih*(1-i/4)+4} fill="#7c8793" textAnchor="end" fontSize="12">{frenchNumber(v,1)}</text></g>})}
+   {Array.from({length:5},(_,i)=>{const v=max*i/4;return <g key={i}><line x1={left} x2={W-right} y1={top+ih*(1-i/4)} y2={top+ih*(1-i/4)} stroke="#dfe3e8" strokeWidth="1"/><text x={left-10} y={top+ih*(1-i/4)+4} fill="#7c8793" textAnchor="end" fontSize="12">{yTicks[i]}</text></g>})}
    {series.length>0&&<><path d={path('production_mwh')} stroke="#286ec2" fill="none" strokeWidth="2.4" vectorEffect="non-scaling-stroke"/><path d={path('consommation_mwh')} stroke="#e37b68" fill="none" strokeWidth="2.2" vectorEffect="non-scaling-stroke"/>{focus&&<path d={path(focus.key)} stroke={focus.color} fill="none" strokeWidth="3" strokeDasharray="7 4" vectorEffect="non-scaling-stroke"/>}</>}
    {series.length===1&&<g aria-hidden="true"><circle cx={x(0)} cy={y(series[0].production_mwh)} r="5" fill="#286ec2" stroke="#fff" strokeWidth="1.5"/><circle cx={x(0)} cy={y(series[0].consommation_mwh)} r="5" fill="#e37b68" stroke="#fff" strokeWidth="1.5"/>{focus&&<circle cx={x(0)} cy={y(series[0][focus.key])} r="5" fill={focus.color} stroke="#fff" strokeWidth="1.5"/>}</g>}
    {series.filter((_,i)=>i%Math.max(1,Math.ceil(series.length/7))===0||i===series.length-1).map(r=><text key={r.date} x={x(series.indexOf(r))} y={H-8} fontSize="12" fill="#85909d" textAnchor="middle">{formatDate(r.date)}</text>)}
@@ -161,9 +167,10 @@ function StackedChart({daily,focusKey='all'}){
  const W=1000,H=295,left=44,right=24,top=24,bottom=35;
  const width=W-left-right,height=H-top-bottom;
  const max=Math.max(1,...daily.map(r=>r.production_mwh))/1e6*1.08;
+ const yTicks=axisTickLabels(max);
  const barWidth=daily.length?Math.min(22,width/daily.length*.72):20;
  return <svg className="stacked-chart" viewBox={'0 0 '+W+' '+H} aria-label="Production électrique quotidienne par filière, en TWh" role="img">
-  {Array.from({length:5},(_,i)=><g key={i}><line x1={left} x2={W-right} y1={top+height*(1-i/4)} y2={top+height*(1-i/4)} stroke="#dce2ea"/><text x={left-9} y={top+height*(1-i/4)+3} fill="#7f8994" fontSize="11" textAnchor="end">{frenchNumber(max*i/4,1)}</text></g>)}
+  {Array.from({length:5},(_,i)=><g key={i}><line x1={left} x2={W-right} y1={top+height*(1-i/4)} y2={top+height*(1-i/4)} stroke="#dce2ea"/><text x={left-9} y={top+height*(1-i/4)+3} fill="#7f8994" fontSize="11" textAnchor="end">{yTicks[i]}</text></g>)}
   {daily.map((r,i)=>{let y=top+height;const cx=left+(i+.5)*width/Math.max(daily.length,1);return <g key={r.date}>{ENERGY_FIELDS.map(f=>{const h=(r[f.key]/1e6)/max*height;y-=h;return <rect key={f.key} x={cx-barWidth/2} y={y} width={barWidth} height={Math.max(0,h)} fill={f.color} opacity={focusKey==='all'||focusKey===f.key?1:.24}><title>{formatDate(r.date)} — {f.name} : {twh(r[f.key],3)} TWh</title></rect>})}{(i%Math.max(1,Math.ceil(daily.length/8))===0||i===daily.length-1)&&<text x={cx} y={H-9} fontSize="11" textAnchor="middle" fill="#778390">{formatDate(r.date)}</text>}</g>})}
  </svg>;
 }
