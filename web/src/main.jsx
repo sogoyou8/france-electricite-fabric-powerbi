@@ -10,6 +10,7 @@ import './interface-v3.css';
 import './interface-v4.css';
 import './interface-v4-2.css';
 import './interface-v4-3.css';
+import './interface-v5.css';
 
 const REPO='https://github.com/sogoyou8/france-electricite-fabric-powerbi';
 const NAV=[['exploration','Explorer'],['comparaison','Comparer'],['tracabilite','Traçabilité']];
@@ -245,9 +246,85 @@ function DataLineage(){
 
  </section>;
 }
+
+/* V5 — a recruiter-first analytical showcase. All metrics use the same Gold facts. */
+function V5Mix({summary,focusKey,onSelect}){
+ const total=summary.production_mwh;
+ const focus=ENERGY_FIELDS.find(field=>field.key===focusKey);
+ return <section className="v5-mix" aria-label="Mix électrique interactif">
+  <div className="v5-panel-title">
+   <div><span className="v5-kicker">Six filières</span><h2>Mix de production</h2></div>
+   {focus&&<button type="button" className="v5-subtle-action" onClick={()=>onSelect('all')}>Effacer ×</button>}
+  </div>
+  <div className="v5-mix-strip" role="group" aria-label="Sélectionner une filière énergétique">
+   {ENERGY_FIELDS.map(field=><button
+    type="button" key={field.key} title={field.name+' · '+twh(summary[field.key],2)+' TWh'}
+    style={{flexGrow:Math.max(summary[field.key]/(total||1)*100,0.2),background:field.color,opacity:focusKey==='all'||focusKey===field.key?1:.28}}
+    onClick={()=>onSelect(focusKey===field.key?'all':field.key)}
+    aria-pressed={focusKey===field.key}
+    aria-label={'Afficher '+field.name+' dans la carte et la courbe'}
+   />)}
+  </div>
+  <div className="v5-mix-list">
+   {ENERGY_FIELDS.map(field=>{
+    const fraction=total?summary[field.key]/total*100:0;
+    return <button type="button" key={field.key}
+     className={'v5-mix-row'+(focusKey===field.key?' is-selected':'')}
+     aria-pressed={focusKey===field.key}
+     onClick={()=>onSelect(focusKey===field.key?'all':field.key)}>
+     <span className="v5-mix-name"><i style={{background:field.color}}/>{field.name}</span>
+     <span className="v5-mix-bar"><span style={{width:fraction+'%',background:field.color}}/></span>
+     <strong>{twh(summary[field.key],2)} <small>TWh</small></strong>
+     <span className="v5-mix-pct">{frenchNumber(fraction,1)} %</span>
+    </button>;
+   })}
+  </div>
+  <div className="v5-panel-hint">{focus?focus.name+' · mis en évidence sur la carte et la courbe':'Sélectionnez une filière pour l’isoler visuellement'}</div>
+ </section>;
+}
+function V5Compare({regions,focusKey,firstCode,secondCode,onFirst,onSecond,onDetails}){
+ const source=ENERGY_FIELDS.find(f=>f.key===focusKey);
+ const key=source?.key||'production_mwh';
+ const a=regions.find(r=>r.code===firstCode);
+ const b=regions.find(r=>r.code===secondCode);
+ const valid=Boolean(a&&b&&a.code!==b.code);
+ const valueA=valid?a[key]:0,valueB=valid?b[key]:0;
+ const max=Math.max(valueA,valueB,1);
+ const diff=valueA-valueB;
+ return <section className="v5-compare" aria-label="Comparer deux régions">
+  <div className="v5-panel-title">
+   <div><span className="v5-kicker">Même période · deux régions</span><h2>Face à face</h2></div>
+   <button className="v5-subtle-action" type="button" onClick={onDetails}>12 régions ↗</button>
+  </div>
+  <div className="v5-compare-select">
+   <label><span>Région A</span><select aria-label="Première région" value={firstCode} onChange={e=>onFirst(e.target.value)}>{regions.map(r=><option key={r.code} value={r.code}>{r.region}</option>)}</select></label>
+   <span className="v5-vs" aria-hidden="true">vs</span>
+   <label><span>Région B</span><select aria-label="Deuxième région" value={secondCode} onChange={e=>onSecond(e.target.value)}>{regions.map(r=><option key={r.code} value={r.code}>{r.region}</option>)}</select></label>
+  </div>
+  {valid?<div className="v5-compare-data">
+    <div className="v5-compare-amounts"><div><small>A</small><strong>{twh(valueA,2)} <span>TWh</span></strong></div><div><small>B</small><strong>{twh(valueB,2)} <span>TWh</span></strong></div><div><small>Écart A − B</small><strong className="v5-diff">{diff>0?'+':''}{twh(diff,2)} <span>TWh</span></strong></div></div>
+    <div className="v5-paired-bars" aria-label="Volumes relatifs">
+     <span className="v5-paired-bar"><span style={{width:100*valueA/max+'%',background:'#376fc3'}}/></span>
+     <span className="v5-paired-bar"><span style={{width:100*valueB/max+'%',background:'#48acb8'}}/></span>
+    </div>
+   </div>:<p className="v5-no-compare">Sélectionnez deux régions distinctes.</p>}
+  <div className="v5-panel-hint">{source?'Production '+source.name.toLowerCase():'Production des six filières'} · volumes comparables</div>
+ </section>;
+}
+function V5Pipeline({onOpen}){
+ const stages=[{title:'RTE / ODRÉ',meta:'17 856 relevés'},{title:'Databricks',meta:'PySpark · Delta'},{title:'Gold / SQL',meta:'372 jours-régions'},{title:'Power BI + Web',meta:'Restitution'}];
+ return <section className="v5-pipeline" aria-label="Chaîne de traitement des données">
+  <span className="v5-pipeline-label">Du brut à l'analyse</span>
+  <div className="v5-pipeline-stages">{stages.map((stage,i)=><React.Fragment key={stage.title}>
+   {i>0&&<span className="v5-pipeline-arrow" aria-hidden="true">→</span>}
+   <div className="v5-pipeline-stage"><strong>{stage.title}</strong><small>{stage.meta}</small></div>
+  </React.Fragment>)}</div>
+  <button type="button" className="v5-subtle-action v5-pipeline-action" onClick={onOpen}>Voir la chaîne ↗</button>
+ </section>;
+}
 function App(){
  const [data,setData]=useState(null),[error,setError]=useState('');
- const [tab,setTab]=useState('exploration'),[drawer,setDrawer]=useState('');
+ const [drawer,setDrawer]=useState('');
  const [scope,setScope]=useState('all'),[mapMetric,setMapMetric]=useState('production_mwh'),[focusKey,setFocusKey]=useState('all');
  const [start,setStart]=useState('2024-01-01'),[end,setEnd]=useState('2024-01-31');
  const [compareA,setCompareA]=useState(''),[compareB,setCompareB]=useState('');
@@ -270,10 +347,9 @@ function App(){
  const totals=useMemo(()=>summarize(selected),[selected]);
  const allRegionSummaries=useMemo(()=>byRegion(periodFacts),[periodFacts]);
  const daily=useMemo(()=>byDate(selected),[selected]);
- const observations=useMemo(()=>selected.length?observationsFor(periodFacts,selected,focusKey):[],[periodFacts,selected,focusKey]);
  const focus=ENERGY_FIELDS.find(f=>f.key===focusKey);
  const mapField=mapMetric==='production_mwh'&&focus?focus.key:mapMetric;
- const mapLabel=mapMetric==='consommation_mwh'?'Consommation par région':focus?'Production '+focus.name.toLowerCase()+' par région':'Production étudiée par région';
+ const mapLabel=mapMetric==='consommation_mwh'?'Consommation par région':focus?'Production '+focus.name.toLowerCase()+' par région':'Production par région';
  const name=scope==='all'?'France · 12 régions':(data?.regions.find(r=>r.code_insee_region===scope)?.region||'Région');
  const sortedRegions=useMemo(()=>[...allRegionSummaries].sort((a,b)=>b.production_mwh-a.production_mwh),[allRegionSummaries]);
  const firstCode=compareA||sortedRegions[0]?.code||'';
@@ -281,73 +357,63 @@ function App(){
  const chooseFirst=code=>{setCompareA(code);if(code===secondCode)setCompareB(sortedRegions.find(r=>r.code!==code)?.code||'')};
  const chooseSecond=code=>{setCompareB(code);if(code===firstCode)setCompareA(sortedRegions.find(r=>r.code!==code)?.code||'')};
  const reset=()=>{setScope('all');setStart('2024-01-01');setEnd('2024-01-31');setFocusKey('all');setMapMetric('production_mwh');setCompareA('');setCompareB('')};
- const filtersActive=scope!=='all'||start!=='2024-01-01'||end!=='2024-01-31'||focusKey!=='all'||compareA!==''||compareB!=='';
- const tabTitles={
-  exploration:['Analyse territoriale','Explorez les régions et le mix électrique.'],
-  comparaison:['Comparaison régionale','Confrontez les douze territoires sur une période commune.'],
-  tracabilite:['Du signal à la donnée','Retrouvez les étapes et les livrables de ce projet DATA.']
- };
- return <div className="workspace-shell cockpit-v4 cockpit-v42">
-  <header className="work-toolbar">
-   <button type="button" className="work-ident work-home" aria-label="Revenir à l'exploration" onClick={()=>setTab('exploration')}><strong>France <span>/</span> Électricité</strong><small>Observatoire · janvier 2024</small></button>
-   <nav className="work-nav" aria-label="Espaces analytiques">
-    {NAV.map(([id,label])=><button type="button" key={id} aria-current={tab===id?'page':undefined} className={tab===id?'current':''} onClick={()=>setTab(id)}>{label}</button>)}
-   </nav>
-   <div className="toolbar-actions">
-    <div className="toolbar-dates"><DateField label="Du" value={start} min="2024-01-01" max={end} onChange={setStart}/><DateField label="Au" value={end} min={start} max="2024-01-31" onChange={setEnd}/></div>
+ const activeFilters=scope!=='all'||start!=='2024-01-01'||end!=='2024-01-31'||focusKey!=='all';
+ const peak=useMemo(()=>[...daily].sort((a,b)=>b.production_mwh-a.production_mwh)[0]||null,[daily]);
+ return <div className="workspace-shell cockpit-v4 cockpit-v42 cockpit-v5">
+  <header className="work-toolbar v5-header">
+   <div className="v5-brand"><strong>France <span>/</span> Électricité</strong><small>Projet DATA · janvier 2024</small></div>
+   <span className="v5-stack">Databricks <i/> SQL <i/> Power BI <i/> React</span>
+   <div className="v5-header-actions">
+    <a href={REPO} target="_blank" rel="noreferrer">GitHub ↗</a>
+    <a href={REPO+'/tree/main/powerbi'} target="_blank" rel="noreferrer">Modèle Power BI ↗</a>
+    <button className="v5-header-data" type="button" onClick={()=>setDrawer('donnees')}>Données ↓</button>
     <Export rows={selected}/>
    </div>
   </header>
-  <main className="work-body">
-   {error?<div role="alert" className="load-status"><h1>Chargement impossible</h1><p>{error}</p></div>:!data?<div role="status" className="load-status">Chargement des trois exports Gold…</div>:<>
-    <section className="cockpit-topline">
-     <div className="context-title"><span className="subtle-eyebrow">RTE / ODRÉ · données définitives · janvier 2024</span><h1>{tabTitles[tab][0]}</h1><p>{tabTitles[tab][1]}</p></div>
-     <div className="context-scope">
-      <label>Territoire<select aria-label="Territoire étudié" value={scope} onChange={e=>setScope(e.target.value)}><option value="all">France · 12 régions</option>{data.regions.map(r=><option key={r.code_insee_region} value={r.code_insee_region}>{r.region}</option>)}</select></label>
-      {filtersActive&&<button type="button" onClick={reset}>Réinitialiser ×</button>}
+  <main className="work-body v5-body">
+   {error?<div role="alert" className="load-status"><h1>Chargement impossible</h1><p>{error}</p></div>:!data?<div role="status" className="load-status">Chargement du jeu Gold…</div>:<>
+    <section className="v5-hero">
+     <div className="v5-hero-copy">
+      <span className="v5-kicker">Janvier 2024 · 12 régions · 6 filières</span>
+      <h1>L’électricité française, décryptée.</h1>
+     </div>
+     <div className="v5-controls">
+      <label className="v5-region-control"><span>Territoire</span><select aria-label="Territoire étudié" value={scope} onChange={e=>setScope(e.target.value)}><option value="all">France · 12 régions</option>{data.regions.map(r=><option key={r.code_insee_region} value={r.code_insee_region}>{r.region}</option>)}</select></label>
+      <div className="v5-date-controls"><DateField label="Du" value={start} min="2024-01-01" max={end} onChange={setStart}/><DateField label="Au" value={end} min={start} max="2024-01-31" onChange={setEnd}/></div>
+      {activeFilters&&<button type="button" className="v5-reset" onClick={reset} title="Réinitialiser les filtres">↺ <span>Effacer</span></button>}
      </div>
     </section>
-    <div className="selection-ribbon" aria-label="Périmètre sélectionné">
-     <span><strong>Période</strong> {formatDate(start)} – {formatDate(end)} 2024</span>
-     <span><strong>Filière</strong> {focus?.name||'Six filières'}</span>
-     <span>{selected.length} faits jour-région</span>
-    </div>
     <StatStrip data={totals} scopeLabel={name}/>
-    {tab==='exploration'&&<>
-     <div className="cockpit-center-grid">
+    <div className="v5-main">
+     <div className="v5-map">
       <MapFigure regionData={allRegionSummaries} selected={scope} onSelect={setScope} metric={mapField} activeMetric={mapMetric} metricLabel={mapLabel} onMetricChange={setMapMetric}/>
-      <TerritoryInspector summary={totals} selected={scope} regions={data.regions} onReset={()=>setScope('all')} focusKey={focusKey} onFocusChange={setFocusKey}/>
      </div>
-     <div className="cockpit-bottom-grid">
+     <V5Mix summary={totals} focusKey={focusKey} onSelect={setFocusKey}/>
+    </div>
+    <div className="v5-lower">
+     <div className="v5-trend">
       <TrendSection daily={daily} focusKey={focusKey}/>
-      <InsightStrip items={observations}/>
+      {peak&&<span className="v5-peak" title="Maximum journalier de la production étudiée dans la sélection">Pic {formatDate(peak.date)} · {twh(peak.production_mwh,3)} TWh</span>}
      </div>
-    </>}
-    {tab==='comparaison'&&<div className="comparison-screen">
-     <div className="compare-intro"><span className="section-kicker">Territoires · {formatDate(start)} – {formatDate(end)}</span><p>Sélectionnez une région dans le classement pour mettre à jour le cockpit. Les volumes A/B restent calculés sur les douze régions à période identique.</p></div>
-     <div className="comparison-grid">
-      <RegionTable allRegions={allRegionSummaries} selected={scope} onSelect={setScope} focusKey={focusKey}/>
-      <ComparePanel regions={sortedRegions} focusKey={focusKey} firstCode={firstCode} secondCode={secondCode} onFirst={chooseFirst} onSecond={chooseSecond}/>
-     </div>
-    </div>}
-    {tab==='tracabilite'&&<div className="provenance-screen">
-     <DataLineage/>
-     <div className="provenance-shortcuts">
-      <div><span className="section-kicker">Données Gold</span><h3>Consulter les mesures</h3><p>{selected.length} lignes filtrées par région et par date, avec les six filières. Export CSV disponible à tout moment.</p><button type="button" onClick={()=>setDrawer('donnees')}>Ouvrir les données <span aria-hidden="true">↗</span></button></div>
-      <div><span className="section-kicker">Transparence</span><h3>Définitions & limites</h3><p>Conversion des MW en MWh, part renouvelable, périmètre géographique et limites d'interprétation.</p><button type="button" onClick={()=>setDrawer('methode')}>Voir la méthode <span aria-hidden="true">↗</span></button></div>
-     </div>
-    </div>}
-    <footer className="workspace-footer">
-     <span>RTE / ODRÉ · janvier 2024 · données figées · 12 régions hors Corse</span>
-     <div className="status-actions"><button type="button" onClick={()=>setDrawer('donnees')}>Données <span aria-hidden="true">↗</span></button><button type="button" onClick={()=>setDrawer('methode')}>Méthode <span aria-hidden="true">↗</span></button><a href={REPO} target="_blank" rel="noreferrer">GitHub ↗</a></div>
+     <V5Compare regions={sortedRegions} focusKey={focusKey} firstCode={firstCode} secondCode={secondCode} onFirst={chooseFirst} onSecond={chooseSecond} onDetails={()=>setDrawer('regions')}/>
+    </div>
+    <V5Pipeline onOpen={()=>setDrawer('pipeline')}/>
+    <footer className="v5-footer">
+     <span>Données RTE / ODRÉ · janvier 2024 uniquement · 12 régions hors Corse</span>
+     <div><button type="button" onClick={()=>setDrawer('methode')}>Méthode et limites ↗</button><span aria-hidden="true">·</span><button type="button" onClick={()=>setDrawer('donnees')}>Données détaillées ↗</button></div>
     </footer>
    </>}
   </main>
   {drawer&&data&&<div className="drawer-layer">
-   <button className="drawer-backdrop" type="button" aria-label="Fermer le détail" onClick={()=>setDrawer('')}/>
-   <aside className="data-drawer" role="dialog" aria-modal="true" aria-label={drawer==='donnees'?'Données journalières':'Méthode et sources'}>
-    <div className="drawer-header"><div><span className="section-kicker">France Électricité · janvier 2024</span><h2>{drawer==='donnees'?'Données journalières':'Méthode et sources'}</h2></div><button type="button" className="drawer-close" autoFocus onClick={()=>setDrawer('')} aria-label="Fermer le panneau">✕</button></div>
-    <div className="drawer-content">{drawer==='donnees'?<DetailData daily={daily} focusKey={focusKey}/>:<Methodology/>}</div>
+   <button type="button" className="drawer-backdrop" aria-label="Fermer le panneau" onClick={()=>setDrawer('')}/>
+   <aside className="data-drawer" role="dialog" aria-modal="true" aria-label={{donnees:'Données journalières',methode:'Méthode et limites',regions:'Comparaison des régions',pipeline:'Chaîne des données'}[drawer]}>
+    <div className="drawer-header"><div><span className="v5-kicker">France Électricité · 2024</span><h2>{{donnees:'Données Gold',methode:'Méthode & limites',regions:'Les 12 régions',pipeline:'Chaîne DATA'}[drawer]}</h2></div><button type="button" className="drawer-close" autoFocus onClick={()=>setDrawer('')} aria-label="Fermer le panneau">✕</button></div>
+    <div className="drawer-content">
+     {drawer==='donnees'&&<DetailData daily={daily} focusKey={focusKey}/>}
+     {drawer==='methode'&&<Methodology/>}
+     {drawer==='regions'&&<><p className="v5-drawer-intro">Sélectionnez une région pour actualiser tous les indicateurs du cockpit.</p><RegionTable allRegions={allRegionSummaries} selected={scope} onSelect={code=>{setScope(code);setDrawer('')}} focusKey={focusKey}/></>}
+     {drawer==='pipeline'&&<DataLineage/>}
+    </div>
    </aside>
   </div>}
  </div>;
