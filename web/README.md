@@ -1,22 +1,23 @@
-# France Électricité 2024 — cockpit analytique V4.2
+# France Électricité 2024 — one-page DATA showcase V5
 
-Interface web React + Vite du projet **Databricks & Power BI**, alimentée par les **trois exports Gold** du même jeu public : fact_energie.csv, dim_region.csv, dim_date.csv dans web/public/data/.
+L'application React + Vite présente le travail du projet **Databricks / PySpark / SQL / Power BI** sur une **seule surface analytique**, lisible en un coup d'œil par un recruteur. Les données restent celles des **trois exports Gold** : `fact_energie.csv`, `dim_region.csv`, `dim_date.csv` dans `web/public/data/`.
 
-**Périmètre réel :** janvier 2024 seulement, 12 régions de France métropolitaine hors Corse, six filières de production. Les 17 856 relevés demi-horaires RTE / ODRÉ ont été préparés avec Databricks / PySpark / Delta Lake puis agrégés en 372 faits région × jour. **Microsoft Fabric n'a pas été utilisé.** Aucune base Neon, aucun backend ni flux temps réel.
+**Périmètre réel :** janvier 2024 uniquement ; 12 régions métropolitaines hors Corse ; six filières. 17 856 relevés demi-horaires RTE / ODRÉ ingérés dans Databricks, transformés en Silver Delta puis agrégés en 372 faits jour × région. **Microsoft Fabric n'a pas été utilisé.** Aucun streaming, backend ou temps réel.
 
-## V4.2 — logiciel analytique en trois espaces
+## V5 — un seul regard, toutes les visualisations essentielles
 
-La V4.2 remplace le long rapport défilant de V4.1 par un **espace de travail compact** à trois vues accessibles sans changer d'URL :
+Le cockpit affiche ensemble : **4 KPI**, carte interactive des **12 régions**, mix des **6 filières**, courbe quotidienne production/consommation, **comparaison A/B**, bandeau de la chaîne DATA. Il ne comporte **aucune navigation entre espaces Explorer/Comparer/Traçabilité**. Le détail est présenté uniquement sur demande, dans un panneau latéral :
 
-- **Explorer** : quatre KPI, carte interactive des 12 régions, inspecteur régional avec **une seule liste des six filières**, courbe quotidienne production/consommation et trois constats calculés sur les filtres actifs.
-- **Comparer** : classement régional et face-à-face de deux régions distinctes, sur la **même période**. Les volumes sont absolus, sans déduire de flux régionaux.
-- **Traçabilité** : chaîne RTE / ODRÉ → Bronze logique → Silver Delta → Gold → SQL / Power BI et Web ; liens vers notebooks, SQL, modèle Power BI et documentation.
+- **Données :** détail quotidien, graphique empilé et export CSV filtré ;
+- **Régions :** classement complet, triable, sélection rapide ;
+- **Méthode :** définitions, limites et licences ;
+- **Chaîne :** RTE/ODRÉ → Databricks → Silver/Gold → Power BI + React et liens vers preuves GitHub.
 
-La navigation, les filtres de dates et de territoire et l'export CSV restent disponibles dans la barre de commande. Les données journalières et la méthode s'ouvrent dans des **panneaux latéraux contextuels** ; le tableau détail et son graphique empilé n'encombrent plus l'exploration. Sur desktop d'environ **1440 × 900**, l'interface vise un écran sans scroll principal. Sur petites fenêtres et mobiles, le défilement reste autorisé pour préserver la lisibilité.
+Les filtres **région et dates** recalculent les KPI, la chronologie et le mix. La carte et la comparaison A/B gardent toutes les régions de la période commune pour éviter les comparaisons incohérentes. La filière active est un **focus visuel** qui affecte la carte en mode production, la courbe et les volumes A/B ; elle ne modifie pas les totaux nationaux ni les champs exportés.
 
-La sélection de **région + dates** recalcule les KPI, la courbe et les répartitions. La carte et le tableau comparatif conservent les douze régions de la période comme référentiel. Une **filière** est un focus visuel transversal : elle influe sur la carte en mode Production, la courbe, les constats et la comparaison A/B, sans changer la définition du total des six filières ni les colonnes de l'export CSV.
+Le layout privilégie une **vue desktop 1440 × 900 sans scrolling principal**. Sur des fenêtres plus petites ou mobiles, le scrolling reste autorisé pour préserver la lisibilité et le fonctionnement.
 
-Les chiffres sont ceux du périmètre Gold statique, **pas des mesures en temps réel**. Aucune simulation ni nouvelle source de données n'est introduite par la refonte.
+Les comparaisons sont des **volumes absolus** : un différentiel entre régions ne mesure pas les échanges électriques. La production étudiée (six filières) et les parts renouvelables sont conformes aux définitions Gold du rapport Power BI.
 
 ## Installation et tests
 
