@@ -1,7 +1,7 @@
 name: Web explorer / quality
 on:
   push:
-    branches: [feature/vercel-energy-dashboard, design/energy-data-cockpit-v4, design/energy-data-cockpit-v4-1, design/energy-cockpit-v4-2, design/energy-cockpit-v4-3, design/energy-showcase-v5]
+    branches: [feature/vercel-energy-dashboard, design/energy-data-cockpit-v4, design/energy-data-cockpit-v4-1, design/energy-cockpit-v4-2, design/energy-cockpit-v4-3, design/energy-showcase-v5, design/energy-showcase-v5-1]
     paths: ['web/**', '.github/workflows/web-explorer.yml']
   pull_request:
     paths: ['web/**', '.github/workflows/web-explorer.yml']
