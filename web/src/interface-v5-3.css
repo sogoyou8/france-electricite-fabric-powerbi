@@ -1,0 +1,397 @@
+/* V5.3 — disciplined one-viewport typography and geometry.
+   Fixes the evidenced issues: under-sized map, overlapping peak, cramped A/B,
+   and an under-emphasized DATA pipeline. No metric/data definitions altered. */
+
+/* Geographic labels are now short, two-line where necessary, with exact
+   full regional names still present in <title> and accessible path labels. */
+.cockpit-v5 .v5-map .v53-map-label {
+ font-size:18px;
+ font-weight:720;
+ letter-spacing:-.02em;
+ paint-order:stroke fill;
+ stroke:#f6faff;
+ stroke-width:2.1px;
+ stroke-linejoin:round;
+}
+.cockpit-v5 .v5-map .v53-map-label.map-label-on-dark {
+ fill:#fff;
+ stroke:#244971;
+ stroke-width:2.25px;
+}
+.cockpit-v5 .v5-map .map-scale-text {
+ font-size:11px;
+ font-weight:610;
+ color:#436581;
+}
+.cockpit-v5 .v5-map .map-subtitle {font-size:11px;color:#526e87}
+.cockpit-v5 .v5-map .france-map {
+ transform:none;
+ transform-origin:center center;
+}
+
+/* The peak belongs in the time-series caption, never over its plot axis. */
+.cockpit-v5 .v5-trend .v53-chart-meta{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ flex-wrap:nowrap;
+ gap:10px;
+ line-height:1.15;
+ min-height:14px;
+}
+.cockpit-v5 .v5-trend .v53-chart-meta>span:first-child{
+ overflow:hidden;
+ white-space:nowrap;
+ text-overflow:ellipsis;
+}
+.cockpit-v5 .v5-trend .v53-peak-label{
+ flex:0 0 auto;
+ white-space:nowrap;
+ color:#2d6caa;
+ font-size:10.5px;
+ font-weight:680;
+}
+.cockpit-v5 .v5-trend .v5-peak{display:none}
+
+/* A/B is a compact, legible micro-comparison with no overlapping elements. */
+.cockpit-v5 .v53-compare{
+ display:flex;
+ flex-direction:column;
+ overflow:hidden;
+ min-height:0;
+}
+.cockpit-v5 .v53-compare .v5-panel-title {
+ flex:0 0 auto;
+ min-height:28px;
+ align-items:center;
+ gap:8px;
+}
+.cockpit-v5 .v53-compare .v5-panel-title h2 {
+ margin:3px 0 0;
+ font-size:16px;
+ line-height:1.08;
+}
+.cockpit-v5 .v53-compare .v5-kicker{
+ font-size:9.5px;
+ letter-spacing:.055em;
+ white-space:nowrap;
+}
+.cockpit-v5 .v53-compare .v5-subtle-action {font-size:11px}
+.cockpit-v5 .v53-select-row{
+ flex:0 0 auto;
+ display:grid;
+ grid-template-columns:minmax(0,1fr) 20px minmax(0,1fr);
+ align-items:end;
+ gap:8px;
+ margin:5px 0 6px;
+ min-width:0;
+}
+.cockpit-v5 .v53-select-row label {
+ min-width:0;
+ display:flex;
+ flex-direction:column;
+ gap:3px;
+}
+.cockpit-v5 .v53-select-row label>span{
+ display:flex;
+ align-items:center;
+ gap:6px;
+ font-size:10px;
+ color:#526f88;
+ font-weight:725;
+}
+.cockpit-v5 .v53-select-row label>span i{
+ flex:0 0 7px;
+ width:7px;height:7px;
+ border-radius:2px;
+ background:#376fc3;
+}
+.cockpit-v5 .v53-select-b>span i{background:#48acb8!important}
+.cockpit-v5 .v53-select-row select{
+ display:block;
+ min-width:0;width:100%;
+ height:29px;min-height:29px;
+ padding:4px 22px 4px 8px;
+ color:#314e69;
+ background:#ffffffa6;
+ border:1px solid #ccdae8;
+ border-bottom:2px solid #376fc3;
+ border-radius:5px;
+ font-size:10.75px;
+ text-overflow:ellipsis;
+}
+.cockpit-v5 .v53-select-b select{border-bottom-color:#48acb8}
+.cockpit-v5 .v53-vs{
+ align-self:end;
+ text-align:center;
+ padding:0 0 8px;
+ font-size:10px;
+ color:#839db5;
+}
+.cockpit-v5 .v53-compare-content{
+ flex:1 1 auto;
+ min-height:0;
+ display:flex;
+ flex-direction:column;
+ justify-content:flex-start;
+ gap:4px;
+}
+.cockpit-v5 .v53-numbers{
+ flex:0 0 auto;
+ display:grid;
+ grid-template-columns:repeat(3,minmax(0,1fr));
+ padding:5px 0;
+ margin:0;
+ min-height:43px;
+ border-top:1px solid #d3e0ed;
+ border-bottom:1px solid #d3e0ed;
+ align-items:center;
+}
+.cockpit-v5 .v53-numbers>div{
+ min-width:0;
+ display:flex;
+ align-items:baseline;
+ flex-wrap:wrap;
+ column-gap:3px;
+ row-gap:1px;
+ padding:0 7px 0 10px;
+ border-left:1px solid #d3e0ed;
+ font-variant-numeric:tabular-nums;
+}
+.cockpit-v5 .v53-numbers>div:first-child{border-left:0}
+.cockpit-v5 .v53-numbers small{
+ flex:0 0 100%;
+ font-size:9px;
+ line-height:1.1;
+ color:#5d7891;
+ font-weight:710;
+}
+.cockpit-v5 .v53-numbers strong{
+ font-size:clamp(17px,1.42vw,22px);
+ line-height:1.1;
+ font-weight:775;
+ white-space:nowrap;
+ letter-spacing:-.03em;
+}
+.cockpit-v5 .v53-numbers span{
+ font-size:10px;
+ white-space:nowrap;
+ color:#8196aa;
+}
+.cockpit-v5 .v53-number-a{box-shadow:inset 3px 0 #376fc3}
+.cockpit-v5 .v53-number-b{box-shadow:inset 3px 0 #48acb8}
+.cockpit-v5 .v53-number-diff strong{color:#2d6fb9}
+.cockpit-v5 .v53-bars{
+ flex:0 0 21px;
+ display:grid;
+ gap:3px;
+ padding:1px 0;
+ min-height:0;
+}
+.cockpit-v5 .v53-bar-row{
+ display:grid;
+ grid-template-columns:14px minmax(0,1fr);
+ align-items:center;
+ gap:5px;
+ height:8px;
+ min-height:0;
+}
+.cockpit-v5 .v53-bar-row>span{
+ font-size:9px;
+ line-height:1;
+ font-weight:760;
+ color:#577791;
+}
+.cockpit-v5 .v53-bar-row>div{
+ height:5px;
+ background:#dce7f1;
+ overflow:hidden;
+ border-radius:2px;
+}
+.cockpit-v5 .v53-bar-row i{
+ display:block;
+ height:100%;
+ border-radius:1px;
+ background:#376fc3;
+}
+.cockpit-v5 .v53-bar-row:nth-child(2) i{background:#48acb8}
+.cockpit-v5 .v53-comparison-note{
+ flex:0 0 auto;
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:10px;
+ min-height:14px;
+ padding:1px 0 0;
+ font-size:9.5px;
+ color:#5a7791;
+ line-height:1.2;
+}
+.cockpit-v5 .v53-comparison-note>span{
+ min-width:0;
+ overflow:hidden;
+ text-overflow:ellipsis;
+ white-space:nowrap;
+}
+.cockpit-v5 .v53-comparison-note button{
+ flex:0 0 auto;
+ border:0;
+ background:none;
+ color:#2f6ea7;
+ font-size:9.5px;
+ font-weight:700;
+ padding:2px 0;
+ cursor:pointer;
+ white-space:nowrap;
+}
+.cockpit-v5 .v53-comparison-note button:disabled{
+ opacity:.42;
+ cursor:default;
+}
+.cockpit-v5 .v53-comparison-note button:not(:disabled):hover{
+ text-decoration:underline;
+ text-underline-offset:2px;
+}
+
+/* Source > transformation > restitution should read as a visible technical
+   signature, not as a grey legal footnote. */
+.cockpit-v5 .v5-pipeline{
+ gap:12px;
+ border-top:1px solid #cbdbe9;
+ border-bottom:1px solid #cbdbe9;
+}
+.cockpit-v5 .v5-pipeline-label{
+ font-size:10.5px;
+ color:#325a7e;
+ font-weight:760;
+ letter-spacing:.065em;
+}
+.cockpit-v5 .v5-pipeline-stages{
+ justify-content:space-evenly;
+ flex:1 1 auto;
+ gap:clamp(5px,1.25vw,17px);
+}
+.cockpit-v5 .v5-pipeline-stage{
+ display:flex;
+ flex-direction:column;
+ align-items:flex-start;
+ justify-content:center;
+ gap:1px;
+}
+.cockpit-v5 .v5-pipeline-stage strong{
+ font-size:11.5px;
+ line-height:1.1;
+ color:#244766;
+ font-weight:750;
+}
+.cockpit-v5 .v5-pipeline-stage small{
+ display:block;
+ font-size:10px;
+ color:#657d94;
+ line-height:1.1;
+}
+.cockpit-v5 .v5-pipeline-arrow{
+ color:#698cac;
+ font-weight:680;
+ font-size:16px;
+}
+.cockpit-v5 .v5-pipeline-action{
+ font-size:10.5px;
+ color:#2866a0;
+ font-weight:720;
+}
+
+/* Preserve the 1-viewport layout on an ordinary desktop and use the extra
+   vertical space of the simplified comparison for the map. */
+@media(min-width:1160px) and (min-height:740px){
+ .cockpit-v5{
+  height:100dvh;
+  min-height:0;
+  max-height:100dvh;
+  overflow:hidden;
+ }
+ .cockpit-v5 .v5-body{
+  display:grid;
+  flex:1 1 0%;
+  min-height:0;
+  overflow:hidden;
+  grid-template-rows:
+   clamp(60px,9vh,74px)
+   clamp(65px,9.5vh,80px)
+   minmax(0,1.7fr)
+   minmax(0,.81fr)
+   42px
+   23px;
+ }
+ .cockpit-v5 .v5-main,.cockpit-v5 .v5-lower{min-height:0;height:auto;overflow:hidden}
+ .cockpit-v5 .v5-map .geography{
+  padding-top:7px;
+  padding-bottom:3px;
+ }
+ .cockpit-v5 .v5-map .map-layout{
+  flex:1 1 0%;
+  min-height:0;
+  height:0;
+  overflow:hidden;
+ }
+ .cockpit-v5 .v5-map .france-map{
+  height:100%;
+  width:auto;
+  max-height:100%;
+  max-width:100%;
+ }
+ .cockpit-v5 .v5-trend{
+  padding:7px 18px 6px 0;
+ }
+ .cockpit-v5 .v5-trend .curve-wrap{
+  flex:1 1 0%;
+  min-height:0;
+  max-height:100%;
+ }
+ .cockpit-v5 .v53-compare{
+  padding:6px 0 5px clamp(14px,1.8vw,29px);
+ }
+ .cockpit-v5 .v5-pipeline{min-height:42px;padding:0}
+}
+
+/* Short desktop browser windows require a natural scroll instead of a layout
+   that clips labels and A/B metrics. This does not affect normal 1440×900. */
+@media(min-width:1160px) and (min-height:620px) and (max-height:739px){
+ .cockpit-v5{height:auto;min-height:100dvh;max-height:none;overflow:visible}
+ .cockpit-v5 .v5-body{
+  display:flex;
+  flex-direction:column;
+  min-height:0;
+  overflow:visible;
+ }
+ .cockpit-v5 .v5-hero{min-height:67px}
+ .cockpit-v5 .stat-strip{min-height:77px}
+ .cockpit-v5 .v5-main{min-height:340px;overflow:visible}
+ .cockpit-v5 .v5-lower{min-height:205px;overflow:visible}
+ .cockpit-v5 .v5-pipeline{min-height:46px;padding:5px 0}
+ .cockpit-v5 .v5-footer{min-height:29px}
+ .cockpit-v5 .v5-map .map-layout{min-height:0}
+ .cockpit-v5 .v5-map .france-map{max-height:100%}
+}
+@media(max-width:1159px){
+ .cockpit-v5 .v5-pipeline-stage strong{font-size:11px}
+ .cockpit-v5 .v5-pipeline-stage small{display:block}
+ .cockpit-v5 .v53-compare{
+  min-height:210px;
+  padding-bottom:15px;
+ }
+ .cockpit-v5 .v53-compare-content{min-height:74px}
+}
+@media(max-width:790px){
+ .cockpit-v5 .v5-map .v53-map-label{font-size:16px}
+ .cockpit-v5 .v5-map .france-map{transform:none}
+ .cockpit-v5 .v53-compare{min-height:235px}
+ .cockpit-v5 .v5-pipeline-stage{gap:2px}
+}
+@media(max-width:480px){
+ .cockpit-v5 .v53-select-row{gap:5px;grid-template-columns:minmax(0,1fr) 13px minmax(0,1fr)}
+ .cockpit-v5 .v53-compare .v5-kicker{font-size:9px}
+ .cockpit-v5 .v53-numbers strong{font-size:18px}
+ .cockpit-v5 .v53-numbers>div{padding-left:6px}
+ .cockpit-v5 .v53-comparison-note{font-size:9px}
+}
