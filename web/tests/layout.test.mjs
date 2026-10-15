@@ -14,6 +14,8 @@ test('V5.5 explicitly supersedes the old 770px-height scrolling breakpoint',()=>
  assert.match(css,/\.cockpit-v42\.cockpit-v5 \.v5-body\s*\{[\s\S]*?display:grid;[\s\S]*?min-height:0;[\s\S]*?overflow:hidden;/);
  assert.match(css,/\.cockpit-v42\.cockpit-v5 \.v5-map \.map-layout\s*\{[\s\S]*?min-height:0;/);
  assert.match(css,/\.cockpit-v42\.cockpit-v5 \.v5-mix-list\s*\{[\s\S]*?min-height:0;/);
+ assert.match(css,/clamp\(180px,24vh,192px\)/);
+ assert.match(css,/50px 58px minmax\(0,1fr\) 180px 33px 22px/);
 });
 
 test('shorter and narrower screens still allow natural scrolling',()=>{
