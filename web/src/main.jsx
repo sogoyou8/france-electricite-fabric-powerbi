@@ -115,17 +115,19 @@ function LineChart({series,large=false,focusKey='all'}){
  return <div className="curve-wrap"><svg className={large?'curve-plot curve-large':'curve-plot'} viewBox={'0 0 '+W+' '+H} role="img" aria-label="Consommation et production électriques quotidiennes en TWh">
    {Array.from({length:5},(_,i)=>{const v=max*i/4;return <g key={i}><line x1={left} x2={W-right} y1={top+ih*(1-i/4)} y2={top+ih*(1-i/4)} stroke="#dfe3e8" strokeWidth="1"/><text x={left-10} y={top+ih*(1-i/4)+4} fill="#7c8793" textAnchor="end" fontSize="12">{frenchNumber(v,1)}</text></g>})}
    {series.length>0&&<><path d={path('production_mwh')} stroke="#286ec2" fill="none" strokeWidth="2.4" vectorEffect="non-scaling-stroke"/><path d={path('consommation_mwh')} stroke="#e37b68" fill="none" strokeWidth="2.2" vectorEffect="non-scaling-stroke"/>{focus&&<path d={path(focus.key)} stroke={focus.color} fill="none" strokeWidth="3" strokeDasharray="7 4" vectorEffect="non-scaling-stroke"/>}</>}
+   {series.length===1&&<g aria-hidden="true"><circle cx={x(0)} cy={y(series[0].production_mwh)} r="5" fill="#286ec2" stroke="#fff" strokeWidth="1.5"/><circle cx={x(0)} cy={y(series[0].consommation_mwh)} r="5" fill="#e37b68" stroke="#fff" strokeWidth="1.5"/>{focus&&<circle cx={x(0)} cy={y(series[0][focus.key])} r="5" fill={focus.color} stroke="#fff" strokeWidth="1.5"/>}</g>}
    {series.filter((_,i)=>i%Math.max(1,Math.ceil(series.length/7))===0||i===series.length-1).map(r=><text key={r.date} x={x(series.indexOf(r))} y={H-8} fontSize="12" fill="#85909d" textAnchor="middle">{formatDate(r.date)}</text>)}
    {chosen&&<g><line x1={x(index)} x2={x(index)} y1={top} y2={top+ih} stroke="#6b7481" strokeDasharray="4 5"/><circle cx={x(index)} cy={y(chosen.production_mwh)} r="4" fill="#286ec2"/><circle cx={x(index)} cy={y(chosen.consommation_mwh)} r="4" fill="#e37b68"/>{focus&&<circle cx={x(index)} cy={y(chosen[focus.key])} r="4" fill={focus.color}/>}</g>}
    <rect x={left} y={top} width={iw} height={ih} fill="transparent" onMouseMove={e=>{if(!series.length)return;const box=e.currentTarget.getBoundingClientRect();const f=(e.clientX-box.left)/box.width;setIndex(Math.max(0,Math.min(series.length-1,Math.round(f*(series.length-1)))));}} onMouseLeave={()=>setIndex(null)}/>
   </svg>{chosen&&<div className="curve-tooltip"><strong>{formatDate(chosen.date)}</strong><span>Production · {twh(chosen.production_mwh,3)} TWh</span><span>Consommation · {twh(chosen.consommation_mwh,3)} TWh</span>{focus&&<span>{focus.name} · {twh(chosen[focus.key],3)} TWh</span>}</div>}</div>;
 }
 function TrendSection({daily,large=false,focusKey='all'}){
+ const periodCaption=daily.length?(daily.length===1?formatDate(daily[0].date):formatDate(daily[0].date)+' – '+formatDate(daily[daily.length-1].date))+' 2024':'Aucune donnée';
  return <section className="time-series">
    <Heading counter={large?'01':'03'} kicker="Série temporelle" aside={<div className="line-legend"><span><i className="legend-production"/>Production étudiée</span><span><i className="legend-consumption"/>Consommation</span>{ENERGY_FIELDS.filter(f=>f.key===focusKey).map(f=><span key={f.key}><i style={{background:f.color}}/>{f.name}</span>)}</div>}>
     Production et consommation au fil des jours
    </Heading>
-   <div className="chart-unit">TWh par jour · 01–31 janvier 2024</div>
+   <div className="chart-unit">TWh par jour · {periodCaption}</div>
    <LineChart series={daily} large={large} focusKey={focusKey}/>
  </section>;
 }
@@ -170,7 +172,7 @@ function MixExplorer({summary,focusKey,onFocusChange}){
  const focus=ENERGY_FIELDS.find(f=>f.key===focusKey);
  return <section className="mix-explorer" id="filieres">
   <Heading kicker="Structure de production" aside={<button className="plain-link" type="button" disabled={!focus} onClick={()=>onFocusChange('all')}>Toutes les filières {focus?'×':''}</button>}>Le mix des six filières</Heading>
-  <p className="panel-intro">Cliquez sur une filière : la carte, la courbe, les observations et la comparaison s'adaptent. La consommation reste inchangée.</p>
+  <p className="panel-intro">Choisissez une filière : la carte en mode Production, la courbe et les comparaisons s'adaptent. La consommation et les totaux restent inchangés.</p>
   <div className="strip-mix" role="group" aria-label="Sélectionner une filière">
    {ENERGY_FIELDS.map(f=><button type="button" key={f.key} className={focusKey===f.key?'mix-segment active':'mix-segment'} style={{width:(summary.production_mwh?summary[f.key]/summary.production_mwh*100:0)+'%',background:f.color,opacity:focusKey==='all'||focusKey===f.key?1:.28}} title={f.name+' : '+twh(summary[f.key],2)+' TWh'} aria-label={f.name+' : '+twh(summary[f.key],2)+' TWh'} aria-pressed={focusKey===f.key} onClick={()=>onFocusChange(focusKey===f.key?'all':f.key)}/>)}
   </div>
@@ -248,8 +250,10 @@ function App(){
  const sortedRegions=useMemo(()=>[...allRegionSummaries].sort((a,b)=>b.production_mwh-a.production_mwh),[allRegionSummaries]);
  const firstCode=compareA||sortedRegions[0]?.code||'';
  const secondCode=compareB||sortedRegions.find(r=>r.code!==firstCode)?.code||'';
- const reset=()=>{setScope('all');setStart('2024-01-01');setEnd('2024-01-31');setFocusKey('all');setMapMetric('production_mwh')};
- const filtersActive=scope!=='all'||start!=='2024-01-01'||end!=='2024-01-31'||focusKey!=='all';
+ const chooseFirst=code=>{setCompareA(code);if(code===secondCode)setCompareB(sortedRegions.find(r=>r.code!==code)?.code||'')};
+ const chooseSecond=code=>{setCompareB(code);if(code===firstCode)setCompareA(sortedRegions.find(r=>r.code!==code)?.code||'')};
+ const reset=()=>{setScope('all');setStart('2024-01-01');setEnd('2024-01-31');setFocusKey('all');setMapMetric('production_mwh');setCompareA('');setCompareB('')};
+ const filtersActive=scope!=='all'||start!=='2024-01-01'||end!=='2024-01-31'||focusKey!=='all'||compareA!==''||compareB!=='';
  return <div className="workspace-shell cockpit-v4">
   <header className="work-toolbar">
    <a href="#exploration" className="work-ident" aria-label="France Électricité, retour au début"><strong>France <span>/</span> Électricité</strong><small>Observatoire · janvier 2024</small></a>
@@ -260,14 +264,14 @@ function App(){
    {error?<div role="alert" className="load-status"><h1>Chargement impossible</h1><p>{error}</p></div>:!data?<div role="status" className="load-status">Chargement des trois exports Gold…</div>:<>
     <section className="context-strip" id="exploration">
      <div className="context-title"><span className="subtle-eyebrow">RTE / ODRÉ · données définitives · 01–31 janvier 2024</span><h1>L'électricité en France, en données</h1><p>Un cockpit pour explorer 12 régions, six filières et la chaîne analytique du projet.</p></div>
-     <div className="context-scope"><label>Territoire<select aria-label="Territoire étudié" value={scope} onChange={e=>setScope(e.target.value)}><option value="all">France · 12 régions</option>{data.regions.map(r=><option key={r.code_insee_region} value={r.code_insee_region}>{r.region}</option>)}</select></label>{filtersActive&&<button type="button" onClick={reset}>Réinitialiser les filtres ×</button>}</div>
+     <div className="context-scope"><label>Territoire<select aria-label="Territoire étudié" value={scope} onChange={e=>setScope(e.target.value)}><option value="all">France · 12 régions</option>{data.regions.map(r=><option key={r.code_insee_region} value={r.code_insee_region}>{r.region}</option>)}</select></label>{filtersActive&&<button type="button" onClick={reset}>Tout réinitialiser ×</button>}</div>
     </section>
     <div className="selection-ribbon"><span><strong>Périmètre</strong> {name}</span><span><strong>Période</strong> {formatDate(start)} – {formatDate(end)} 2024</span><span><strong>Filière</strong> {focus?.name||'Toutes les six filières'}</span><span>{selected.length} jours-régions</span></div>
     <StatStrip data={totals} scopeLabel={name}/>
     <InsightStrip items={observations}/>
     <div className="main-split cockpit-map"><MapFigure regionData={allRegionSummaries} selected={scope} onSelect={setScope} metric={mapField} activeMetric={mapMetric} metricLabel={mapLabel} onMetricChange={setMapMetric}/><TerritoryInspector summary={totals} selected={scope} regions={data.regions} onReset={()=>setScope('all')} focusKey={focusKey} onFocusChange={setFocusKey}/></div>
     <div className="analysis-grid"><TrendSection daily={daily} focusKey={focusKey}/><MixExplorer summary={totals} focusKey={focusKey} onFocusChange={setFocusKey}/></div>
-    <section className="comparison-section" id="comparaison"><div className="comparison-heading"><Heading kicker="Lecture comparative">Les territoires, côte à côte</Heading><p>La carte et le classement conservent les douze régions pour permettre la comparaison, même lorsqu'une région est sélectionnée.</p></div><div className="comparison-grid"><RegionTable allRegions={allRegionSummaries} selected={scope} onSelect={setScope} focusKey={focusKey}/><ComparePanel regions={sortedRegions} focusKey={focusKey} firstCode={firstCode} secondCode={secondCode} onFirst={setCompareA} onSecond={setCompareB}/></div></section>
+    <section className="comparison-section" id="comparaison"><div className="comparison-heading"><Heading kicker="Lecture comparative">Les territoires, côte à côte</Heading><p>La carte et le classement conservent les douze régions pour permettre la comparaison, même lorsqu'une région est sélectionnée.</p></div><div className="comparison-grid"><RegionTable allRegions={allRegionSummaries} selected={scope} onSelect={setScope} focusKey={focusKey}/><ComparePanel regions={sortedRegions} focusKey={focusKey} firstCode={firstCode} secondCode={secondCode} onFirst={chooseFirst} onSecond={chooseSecond}/></div></section>
     <DetailData daily={daily} focusKey={focusKey}/>
     <DataLineage/>
     <footer className="workspace-footer"><span>RTE / ODRÉ · janvier 2024 · 12 régions hors Corse · données figées</span><span><a href={regionsGeo.source} target="_blank" rel="noreferrer">Contours IGN / france-geojson</a> · <a href={REPO} target="_blank" rel="noreferrer">Code, SQL et Power BI ↗</a></span></footer>
