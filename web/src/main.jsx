@@ -9,6 +9,7 @@ import './workspace.css';
 import './interface-v3.css';
 import './interface-v4.css';
 import './interface-v4-2.css';
+import './interface-v4-3.css';
 
 const REPO='https://github.com/sogoyou8/france-electricite-fabric-powerbi';
 const NAV=[['exploration','Explorer'],['comparaison','Comparer'],['tracabilite','Traçabilité']];
@@ -93,11 +94,11 @@ function TerritoryInspector({summary,selected,regions,onReset,focusKey='all',onF
  return <aside className="territory-inspector" aria-label="Détail du territoire">
    <Heading counter="02" kicker={heading} aside={scope?<button className="plain-link" onClick={onReset}>Effacer la sélection ×</button>:null}>{scope?.region||'La France, en détail'}</Heading>
    <div className="inspector-description">{scope?'Résultats agrégés de la région sélectionnée':'Les six filières électriques de notre périmètre RTE.'}</div>
-   <div className="inspector-figures">
+   {scope&&<div className="inspector-figures inspector-figures-region">
     <div><span>Production</span><strong>{twh(summary.production_mwh,2)}</strong><small>TWh</small></div>
     <div><span>Consommation</span><strong>{twh(summary.consommation_mwh,2)}</strong><small>TWh</small></div>
     <div><span>Renouvelable</span><strong>{pct(summary.part_renouvelables,1)}</strong></div>
-   </div>
+   </div>}
    <div className="rule"/>
    <div className="inspector-subheading">Production par filière <span>TWh</span></div>
    <SourceList summary={summary} selectedKey={focusKey} onSelect={onFocusChange}/>
@@ -106,7 +107,7 @@ function TerritoryInspector({summary,selected,regions,onReset,focusKey='all',onF
 }
 function LineChart({series,large=false,focusKey='all'}){
  const [index,setIndex]=useState(null);
- const W=1150,H=large?360:224,left=49,right=17,top=22,bottom=33;
+ const W=1150,H=large?360:180,left=49,right=17,top=18,bottom=25;
  const values=series.flatMap(r=>[r.production_mwh,r.consommation_mwh]).map(v=>v/1e6);
  const max=Math.max(.2,...values)*1.1,iw=W-left-right,ih=H-top-bottom;
  const x=i=>left+(series.length<=1?iw/2:i/(series.length-1)*iw),y=v=>top+ih-(v/1e6)/max*ih;
@@ -188,6 +189,11 @@ function ComparePanel({regions,focusKey,firstCode,secondCode,onFirst,onSecond}){
  const b=regions.find(r=>r.code===secondCode);
  const valid=a&&b&&a.code!==b.code;
  const difference=valid?a[key]-b[key]:null;
+ const comparisonMetrics=[
+  {key, label:focus?'Production · '+focus.name:'Production étudiée',type:'twh'},
+  {key:'consommation_mwh',label:'Consommation',type:'twh'},
+  {key:'part_renouvelables',label:'Part renouvelable',type:'percent'}
+ ];
  return <section className="compare-panel" aria-label="Comparaison de deux régions">
   <div className="compare-title"><span className="section-kicker">Face à face</span><h3>Comparer deux territoires</h3><p>{focus?'Production de '+focus.name.toLowerCase():'Production étudiée, six filières'} · période commune</p></div>
   <div className="compare-selectors">
@@ -196,7 +202,21 @@ function ComparePanel({regions,focusKey,firstCode,secondCode,onFirst,onSecond}){
    <label>Région B<select aria-label="Seconde région à comparer" value={secondCode} onChange={e=>onSecond(e.target.value)}>{regions.map(r=><option key={r.code} value={r.code}>{r.region}</option>)}</select></label>
   </div>
   {valid?<div className="compare-values"><div><span>A</span><strong>{twh(a[key],2)} <small>TWh</small></strong></div><div><span>B</span><strong>{twh(b[key],2)} <small>TWh</small></strong></div><div><span>Écart A − B</span><strong>{difference>0?'+':''}{twh(difference,2)} <small>TWh</small></strong></div></div>:<p className="compare-empty">Sélectionnez deux régions différentes pour calculer l'écart.</p>}
-  <p className="scope-note">Comparaison de volumes absolus, sans normalisation par population ou par superficie. Cet écart ne mesure pas des échanges entre régions.</p>
+  {valid&&<div className="compare-breakdown" aria-label="Indicateurs comparés entre deux régions">
+   <div className="compare-breakdown-title"><span>Lecture croisée</span><span className="compare-key"><i className="compare-color-a"/> A <i className="compare-color-b"/> B</span></div>
+   {comparisonMetrics.map(metric=>{
+    const valueA=a[metric.key]||0,valueB=b[metric.key]||0,maxValue=Math.max(valueA,valueB,1);
+    const formatted=value=>metric.type==='percent'?pct(value,1):twh(value,2)+' TWh';
+    return <div className="compare-metric" key={metric.key}>
+     <strong>{metric.label}</strong>
+     <div className="compare-pair">
+      <div className="compare-meter"><span className="compare-meter-label">A</span><span className="compare-meter-track"><span className="compare-meter-fill a" style={{width:valueA/maxValue*100+'%'}}/></span><small>{formatted(valueA)}</small></div>
+      <div className="compare-meter"><span className="compare-meter-label">B</span><span className="compare-meter-track"><span className="compare-meter-fill b" style={{width:valueB/maxValue*100+'%'}}/></span><small>{formatted(valueB)}</small></div>
+     </div>
+    </div>;
+   })}
+  </div>}
+  <p className="scope-note">Volumes absolus, sans normalisation par population ou superficie. Les écarts ne mesurent pas des échanges entre régions.</p>
  </section>;
 }
 function DetailData({daily,focusKey,observations}){
