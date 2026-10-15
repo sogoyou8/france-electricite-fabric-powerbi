@@ -6,6 +6,7 @@ import {
   twh, pct, frenchNumber, rowsCSV
 } from './metrics.js';
 import './workspace.css';
+import './interface-v3.css';
 
 const REPO='https://github.com/sogoyou8/france-electricite-fabric-powerbi';
 const NAV=[['overview','Synthèse'],['territories','Territoires'],['sources','Filières'],['timeline','Chronologie'],['method','Méthode']];
@@ -34,8 +35,8 @@ function StatStrip({data,scopeLabel}){
  ];
  return <section aria-label={'Indicateurs — '+scopeLabel} className="stat-strip">{items.map(([name,value])=><div key={name} className="stat-item"><span>{name}</span><strong>{value}</strong></div>)}</section>;
 }
-function Heading({counter,kicker,children,aside}){
- return <div className="section-heading"><div><div className="section-kicker">{counter&&<span>{counter} / </span>}{kicker}</div><h2>{children}</h2></div>{aside&&<div className="section-aside">{aside}</div>}</div>;
+function Heading({kicker,children,aside}){
+ return <div className="section-heading"><div><div className="section-kicker">{kicker}</div><h2>{children}</h2></div>{aside&&<div className="section-aside">{aside}</div>}</div>;
 }
 function colorFrom(value,max){
  if(!value||max<=0)return MAP_COLORS[0];
@@ -131,7 +132,7 @@ function RegionTable({allRegions,selected,onSelect}){
  const rows=[...allRegions].sort((a,b)=>b[order]-a[order]);
  return <section className="ranking"><Heading counter="02" kicker="Comparaison"
   aside={<label className="table-sort">Classer par <select value={order} onChange={e=>setOrder(e.target.value)}><option value="production_mwh">Production</option><option value="consommation_mwh">Consommation</option><option value="renouvelables_mwh">Renouvelables</option></select></label>}>Les régions en chiffres</Heading>
- <table><thead><tr><th>Région</th><th>Production (TWh)</th><th>Consommation (TWh)</th><th>Renouvelables (%)</th></tr></thead><tbody>{rows.map(r=><tr key={r.code} className={selected===r.code?'is-selected':''} onClick={()=>onSelect(r.code)} onKeyDown={e=>{if(e.key==='Enter')onSelect(r.code)}} tabIndex={0} aria-label={'Sélectionner '+r.region}><th>{r.region}</th><td>{twh(r.production_mwh)}</td><td>{twh(r.consommation_mwh)}</td><td>{pct(r.part_renouvelables)}</td></tr>)}</tbody></table>
+ <div className="table-viewport" role="region" aria-label="Classement des régions" tabIndex={0}><table><thead><tr><th>Région</th><th>Production (TWh)</th><th>Consommation (TWh)</th><th>Renouvelables (%)</th></tr></thead><tbody>{rows.map(r=><tr key={r.code} className={selected===r.code?'is-selected':''} onClick={()=>onSelect(r.code)} onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();onSelect(r.code)}}} tabIndex={0} aria-label={'Sélectionner '+r.region}><th>{r.region}</th><td>{twh(r.production_mwh)}</td><td>{twh(r.consommation_mwh)}</td><td>{pct(r.part_renouvelables)}</td></tr>)}</tbody></table></div>
  </section>;
 }
 function StackedChart({daily}){
@@ -186,14 +187,14 @@ function App(){
   <main className="work-body">
    {error?<div role="alert" className="load-status"><h1>Chargement impossible</h1><p>{error}</p></div>:!data?<div role="status" className="load-status">Préparation des données RTE…</div>:<>
      {tab!=='method'&&<div className="context-strip">
-      <div><span className="subtle-eyebrow">RTE / éCO2mix • 2024</span><h1>{tab==='overview'?'L’électricité, territoire par territoire.':NAV.find(([k])=>k===tab)?.[1]}</h1></div>
-      <div className="context-scope"><label>Zone étudiée <select value={scope} onChange={e=>setScope(e.target.value)}><option value="all">France · 12 régions</option>{data.regions.map(r=><option key={r.code_insee_region} value={r.code_insee_region}>{r.region}</option>)}</select></label><button onClick={reset}>Réinitialiser</button></div>
+      <div><span className="subtle-eyebrow">RTE · données de janvier 2024</span><h1>{tab==='overview'?'Électricité en France':NAV.find(([k])=>k===tab)?.[1]}</h1></div>
+      <div className="context-scope"><label>Zone étudiée <select value={scope} onChange={e=>setScope(e.target.value)}><option value="all">France · 12 régions</option>{data.regions.map(r=><option key={r.code_insee_region} value={r.code_insee_region}>{r.region}</option>)}</select></label>{(scope!=='all'||start!=='2024-01-01'||end!=='2024-01-31')&&<button type="button" onClick={reset}>Réinitialiser</button>}</div>
      </div>}
      {tab!=='method'&&<StatStrip data={totals} scopeLabel={name}/>}
      {tab==='overview'&&<div className="overview"><div className="main-split"><MapFigure regionData={allRegionSummaries} selected={scope} onSelect={setScope} metric={mapMetric} onMetricChange={setMapMetric}/><TerritoryInspector summary={totals} selected={scope} regions={data.regions} onReset={()=>setScope('all')}/></div><TrendSection daily={daily}/></div>}
      {tab==='territories'&&<div className="territories-view"><div className="main-split"><MapFigure regionData={allRegionSummaries} selected={scope} onSelect={setScope} metric={mapMetric} onMetricChange={setMapMetric}/><TerritoryInspector summary={totals} selected={scope} regions={data.regions} onReset={()=>setScope('all')}/></div><RegionTable allRegions={allRegionSummaries} selected={scope} onSelect={setScope}/></div>}
      {tab==='sources'&&<div className="sources-view"><div className="sources-intro"><Heading counter="01" kicker="Structure de la production">De quoi est composée notre électricité ?</Heading><p>Six filières, calculées sur le périmètre de données sélectionné. Les couleurs identifient les sources et ne représentent pas une échelle de performance.</p></div><div className="sources-layout"><div><h3>Part dans la production étudiée</h3><div className="strip-mix">{ENERGY_FIELDS.map(f=><div key={f.key} style={{width:(totals.production_mwh?totals[f.key]/totals.production_mwh*100:0)+'%',background:f.color}}><title>{f.name} — {twh(totals[f.key],2)} TWh</title></div>)}</div><SourceList summary={totals}/></div><aside className="sources-highlight"><span>Production totale</span><strong>{twh(totals.production_mwh)}</strong><small>TWh</small><span>Renouvelables</span><strong>{pct(totals.part_renouvelables,2)}</strong></aside></div><section className="time-series"><Heading counter="02" kicker="Évolution des filières">Production quotidienne par source</Heading><StackedChart daily={daily}/></section></div>}
-     {tab==='timeline'&&<div className="timeline-view"><TrendSection daily={daily} large/><section className="timeline-table"><Heading counter="02" kicker="Données journalières">Mesures de la période</Heading><table><thead><tr><th>Jour</th><th>Production (TWh)</th><th>Consommation (TWh)</th><th>Écart étudié (TWh)</th></tr></thead><tbody>{daily.map(d=><tr key={d.date}><th>{formatDate(d.date)}</th><td>{twh(d.production_mwh,3)}</td><td>{twh(d.consommation_mwh,3)}</td><td>{twh(d.production_mwh-d.consommation_mwh,3)}</td></tr>)}</tbody></table></section></div>}
+     {tab==='timeline'&&<div className="timeline-view"><TrendSection daily={daily} large/><section className="timeline-table"><Heading counter="02" kicker="Données journalières">Mesures de la période</Heading><div className="table-viewport" role="region" aria-label="Mesures quotidiennes" tabIndex={0}><table><thead><tr><th>Jour</th><th>Production (TWh)</th><th>Consommation (TWh)</th><th>Écart étudié (TWh)</th></tr></thead><tbody>{daily.map(d=><tr key={d.date}><th>{formatDate(d.date)}</th><td>{twh(d.production_mwh,3)}</td><td>{twh(d.consommation_mwh,3)}</td><td>{twh(d.production_mwh-d.consommation_mwh,3)}</td></tr>)}</tbody></table></div></section></div>}
      {tab==='method'&&<Methodology/>}
      <footer className="workspace-footer"><span>RTE / ODRÉ · éCO2mix · janvier 2024 · {selected.length} jours-régions affichés</span><span><a href={regionsGeo.source} target="_blank" rel="noreferrer">Cartographie IGN / france-geojson</a><span aria-hidden="true"> · </span><a href={REPO} target="_blank" rel="noreferrer">Code et Power BI ↗</a></span></footer>
    </>}
