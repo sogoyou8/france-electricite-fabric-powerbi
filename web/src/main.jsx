@@ -12,6 +12,7 @@ import './interface-v4-2.css';
 import './interface-v4-3.css';
 import './interface-v5.css';
 import './interface-v5-1.css';
+import './interface-v5-2.css';
 
 const REPO='https://github.com/sogoyou8/france-electricite-fabric-powerbi';
 const NAV=[['exploration','Explorer'],['comparaison','Comparer'],['tracabilite','Traçabilité']];
@@ -298,15 +299,15 @@ function V5Compare({regions,focusKey,firstCode,secondCode,onFirst,onSecond,onDet
    <button className="v5-subtle-action" type="button" onClick={onDetails}>12 régions ↗</button>
   </div>
   <div className="v5-compare-select">
-   <label><span>Région A</span><select aria-label="Première région" value={firstCode} onChange={e=>onFirst(e.target.value)}>{regions.map(r=><option key={r.code} value={r.code}>{r.region}</option>)}</select></label>
+   <label className="v52-region-a"><span><i aria-hidden="true"/> Région A</span><select aria-label="Première région" value={firstCode} onChange={e=>onFirst(e.target.value)}>{regions.map(r=><option key={r.code} value={r.code}>{r.region}</option>)}</select></label>
    <span className="v5-vs" aria-hidden="true">vs</span>
-   <label><span>Région B</span><select aria-label="Deuxième région" value={secondCode} onChange={e=>onSecond(e.target.value)}>{regions.map(r=><option key={r.code} value={r.code}>{r.region}</option>)}</select></label>
+   <label className="v52-region-b"><span><i aria-hidden="true"/> Région B</span><select aria-label="Deuxième région" value={secondCode} onChange={e=>onSecond(e.target.value)}>{regions.map(r=><option key={r.code} value={r.code}>{r.region}</option>)}</select></label>
   </div>
   {valid?<div className="v5-compare-data">
-    <div className="v5-compare-amounts"><div><small>A</small><strong>{twh(valueA,2)} <span>TWh</span></strong></div><div><small>B</small><strong>{twh(valueB,2)} <span>TWh</span></strong></div><div><small>Écart A − B</small><strong className="v5-diff">{diff>0?'+':''}{twh(diff,2)} <span>TWh</span></strong></div></div>
-    <div className="v5-paired-bars" aria-label="Volumes relatifs">
-     <span className="v5-paired-bar"><span style={{width:100*valueA/max+'%',background:'#376fc3'}}/></span>
-     <span className="v5-paired-bar"><span style={{width:100*valueB/max+'%',background:'#48acb8'}}/></span>
+    <div className="v5-compare-amounts"><div className="v52-amount-a"><small>A</small><strong>{twh(valueA,2)} <span>TWh</span></strong></div><div className="v52-amount-b"><small>B</small><strong>{twh(valueB,2)} <span>TWh</span></strong></div><div><small>Écart A − B</small><strong className="v5-diff">{diff>0?'+':''}{twh(diff,2)} <span>TWh</span></strong></div></div>
+    <div className="v5-paired-bars" aria-label="Volumes relatifs de la région A et de la région B">
+     <div className="v52-bar-row" title={'Région A : '+twh(valueA,2)+' TWh'}><span>A</span><span className="v5-paired-bar"><span style={{width:100*valueA/max+'%',background:'#376fc3'}}/></span></div>
+     <div className="v52-bar-row" title={'Région B : '+twh(valueB,2)+' TWh'}><span>B</span><span className="v5-paired-bar"><span style={{width:100*valueB/max+'%',background:'#48acb8'}}/></span></div>
     </div>
    </div>:<p className="v5-no-compare">Sélectionnez deux régions distinctes.</p>}
   <div className="v5-panel-hint">{source?'Production '+source.name.toLowerCase():'Production des six filières'} · volumes comparables</div>
@@ -323,6 +324,31 @@ function V5Pipeline({onOpen}){
   <button type="button" className="v5-subtle-action v5-pipeline-action" onClick={onOpen}>Voir la chaîne ↗</button>
  </section>;
 }
+
+function V52DataDrawer({daily,focusKey}){
+ const [view,setView]=useState('table');
+ const focus=ENERGY_FIELDS.find(f=>f.key===focusKey);
+ return <section className="v52-data-view" aria-label="Données journalières Gold">
+  <div className="v52-data-toolbar">
+   <div className="v52-data-summary"><strong>{daily.length} jour{daily.length>1?'s':''}</strong><span>· {daily.length?formatDate(daily[0].date)+' – '+formatDate(daily[daily.length-1].date):'Aucune donnée'} 2024</span></div>
+   <div className="v52-data-tabs" role="tablist" aria-label="Présentation des données">
+    <button type="button" role="tab" id="v52-table-tab" aria-controls="v52-data-content" aria-selected={view==='table'} className={view==='table'?'active':''} onClick={()=>setView('table')}>Tableau</button>
+    <button type="button" role="tab" id="v52-chart-tab" aria-controls="v52-data-content" aria-selected={view==='chart'} className={view==='chart'?'active':''} onClick={()=>setView('chart')}>Graphique</button>
+   </div>
+  </div>
+  <div className="v52-data-content" id="v52-data-content" role="tabpanel" aria-labelledby={view==='table'?'v52-table-tab':'v52-chart-tab'}>
+   {view==='table'
+    ?<table className="daily-table v52-daily-table"><thead><tr><th>Date</th><th>Production (TWh)</th><th>Consommation (TWh)</th><th>Renouvelables (TWh)</th>{focus&&<th>{focus.name} (TWh)</th>}</tr></thead><tbody>{daily.map(r=><tr key={r.date}><th>{formatDate(r.date)}</th><td>{twh(r.production_mwh,3)}</td><td>{twh(r.consommation_mwh,3)}</td><td>{twh(r.renouvelables_mwh,3)}</td>{focus&&<td>{twh(r[focus.key],3)}</td>}</tr>)}</tbody></table>
+    :<div className="v52-chart-panel">
+      <h3>Production quotidienne par filière</h3>
+      <StackedChart daily={daily} focusKey={focusKey}/>
+      <div className="v52-chart-legend">{ENERGY_FIELDS.map(field=><span key={field.key}><i style={{background:field.color}}/>{field.name}</span>)}</div>
+     </div>}
+  </div>
+  <p className="v52-drawer-note">Source : données Gold figées, janvier 2024. L’export CSV conserve les six filières, même lorsqu’une source est mise en évidence.</p>
+ </section>;
+}
+
 function App(){
  const [data,setData]=useState(null),[error,setError]=useState('');
  const [drawer,setDrawer]=useState('');
@@ -410,7 +436,7 @@ function App(){
    <aside className="data-drawer" role="dialog" aria-modal="true" aria-label={{donnees:'Données journalières',methode:'Méthode et limites',regions:'Comparaison des régions',pipeline:'Chaîne des données'}[drawer]}>
     <div className="drawer-header"><div><span className="v5-kicker">France Électricité · 2024</span><h2>{{donnees:'Données Gold',methode:'Méthode & limites',regions:'Les 12 régions',pipeline:'Chaîne DATA'}[drawer]}</h2></div><button type="button" className="drawer-close" autoFocus onClick={()=>setDrawer('')} aria-label="Fermer le panneau">✕</button></div>
     <div className="drawer-content">
-     {drawer==='donnees'&&<DetailData daily={daily} focusKey={focusKey}/>}
+     {drawer==='donnees'&&<V52DataDrawer daily={daily} focusKey={focusKey}/>}
      {drawer==='methode'&&<Methodology/>}
      {drawer==='regions'&&<><p className="v5-drawer-intro">Sélectionnez une région pour actualiser tous les indicateurs du cockpit.</p><RegionTable allRegions={allRegionSummaries} selected={scope} onSelect={code=>{setScope(code);setDrawer('')}} focusKey={focusKey}/></>}
      {drawer==='pipeline'&&<DataLineage/>}
