@@ -37,6 +37,12 @@ Le bouton **Données** de la barre supérieure ouvre une *palette de données* f
 
 Cette refonte ne change ni les trois fichiers Gold, ni les calculs, ni le périmètre janvier 2024.
 
+### V5.7 — finitions de lisibilité
+
+La bande des quatre KPI conserve une hauteur suffisante, y compris lorsque Chrome réduit la hauteur disponible (80–88 px sur desktop compatible, avec une taille typographique et un interligne ajustés). Les quatre visuels du cockpit restent répartis sur un écran.
+
+Le panneau flottant **Données** supprime le sous-en-tête redondant : l'onglet actif identifie directement le contenu, tandis que la vue Gold affiche la période et le choix Tableau/Graphique. Les quatre sections, la navigation clavier et les méthodes restent accessibles.
+
 ## Installation et tests
 
 ```sh
