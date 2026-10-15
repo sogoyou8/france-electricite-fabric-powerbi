@@ -81,6 +81,20 @@ export function frenchNumber(value,digits=2){
 }
 export function twh(mwh,digits=2){return frenchNumber(energyToTWh(mwh),digits);}
 export function pct(p,digits=1){return p==null?'—':frenchNumber(p,digits)+' %';}
+
+// Select the fewest decimals that keep every Y-axis graduation distinct.
+// Essential on small regional volumes (e.g. 0.004–0.030 TWh).
+export function axisTickLabels(maxValue, divisions=4){
+  if(!Number.isFinite(maxValue)||maxValue<0) throw new Error('Amplitude graphique invalide.');
+  if(!Number.isInteger(divisions)||divisions<1||divisions>20) throw new Error('Nombre de graduations invalide.');
+  if(maxValue===0) return Array.from({length:divisions+1},()=> '0');
+  for(let digits=1;digits<=9;digits++){
+    const labels=Array.from({length:divisions+1},(_,i)=>frenchNumber(maxValue*i/divisions,digits));
+    if(new Set(labels).size===labels.length) return labels;
+  }
+  return Array.from({length:divisions+1},(_,i)=> (maxValue*i/divisions).toExponential(2).replace('.',','));
+}
+
 export function rowsCSV(rows){
   const keys=['date','code_insee_region','region',...numericFields];
   const out=[keys.join(';')];
