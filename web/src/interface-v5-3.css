@@ -318,8 +318,8 @@
   grid-template-rows:
    clamp(60px,9vh,74px)
    clamp(65px,9.5vh,80px)
-   minmax(0,1.7fr)
-   minmax(0,.81fr)
+   minmax(0,1fr)
+   clamp(176px,23.5vh,196px)
    42px
    23px;
  }
