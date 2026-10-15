@@ -383,7 +383,15 @@ function DataCommandPanel({active,onClose,onNavigate,panelRef,daily,focusKey,reg
     </div></div>
     <button type="button" className="v56-command-close" data-autofocus aria-label="Fermer le panneau de données" onClick={onClose}><span aria-hidden="true">×</span><small>Échap</small></button>
    </header>
-   <div className="v56-command-navigation" role="tablist" aria-label="Sections du panneau">
+   <div className="v56-command-navigation" role="tablist" aria-label="Sections du panneau" onKeyDown={event=>{
+    if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
+    event.preventDefault();
+    const currentIndex=DATA_PANELS.findIndex(item=>item.key===active);
+    const nextIndex=event.key==='Home'?0:event.key==='End'?DATA_PANELS.length-1:(currentIndex+(event.key==='ArrowRight'?1:-1)+DATA_PANELS.length)%DATA_PANELS.length;
+    const key=DATA_PANELS[nextIndex].key;
+    onNavigate(key);
+    event.currentTarget.querySelector('#v56-tab-'+key)?.focus();
+   }}>
     {DATA_PANELS.map((entry,index)=><button key={entry.key} type="button" role="tab"
      id={'v56-tab-'+entry.key} aria-controls="v56-command-content" aria-selected={active===entry.key}
      tabIndex={active===entry.key?0:-1} className={'v56-command-tab'+(active===entry.key?' is-active':'')}
@@ -404,7 +412,7 @@ function DataCommandPanel({active,onClose,onNavigate,panelRef,daily,focusKey,reg
 function App(){
  const [data,setData]=useState(null),[error,setError]=useState('');
  const [drawer,setDrawer]=useState('');
- const panelRef=useRef(null),lastTriggerRef=useRef(null);
+ const panelRef=useRef(null),lastTriggerRef=useRef(null),wasPanelOpenRef=useRef(false);
  const openPanel=section=>{lastTriggerRef.current=document.activeElement;setDrawer(section)};
  const closePanel=()=>{setDrawer('');lastTriggerRef.current?.focus?.()};
  const [scope,setScope]=useState('all'),[mapMetric,setMapMetric]=useState('production_mwh'),[focusKey,setFocusKey]=useState('all');
@@ -418,9 +426,12 @@ function App(){
   return()=>controller.abort();
  },[]);
  useEffect(()=>{
-  if(!drawer)return undefined;
+  if(!drawer){wasPanelOpenRef.current=false;return undefined;}
   const panel=panelRef.current;
-  panel?.querySelector('[data-autofocus]')?.focus();
+  if(!wasPanelOpenRef.current){
+   panel?.querySelector('[data-autofocus]')?.focus();
+   wasPanelOpenRef.current=true;
+  }
   const onKey=event=>{
    if(event.key==='Escape'){event.preventDefault();setDrawer('');lastTriggerRef.current?.focus?.();return;}
    if(event.key==='Tab'&&panel){
@@ -452,7 +463,7 @@ function App(){
  const reset=()=>{setScope('all');setStart('2024-01-01');setEnd('2024-01-31');setFocusKey('all');setMapMetric('production_mwh');setCompareA('');setCompareB('')};
  const activeFilters=scope!=='all'||start!=='2024-01-01'||end!=='2024-01-31'||focusKey!=='all';
  const peak=useMemo(()=>[...daily].sort((a,b)=>b.production_mwh-a.production_mwh)[0]||null,[daily]);
- return <div className="workspace-shell cockpit-v4 cockpit-v42 cockpit-v5">
+ return <div className="workspace-shell cockpit-v4 cockpit-v42 cockpit-v5 v56-cockpit">
   <header className="work-toolbar v5-header">
    <div className="v5-brand"><strong>France <span>/</span> Électricité</strong><small>Projet DATA · janvier 2024</small></div>
    <span className="v5-stack">Databricks <i/> SQL <i/> Power BI <i/> React</span>
