@@ -8,6 +8,7 @@ import {
 import './workspace.css';
 import './interface-v3.css';
 import './interface-v4.css';
+import './interface-v4-2.css';
 
 const REPO='https://github.com/sogoyou8/france-electricite-fabric-powerbi';
 const NAV=[['exploration','Explorer'],['comparaison','Comparer'],['tracabilite','Traçabilité']];
@@ -200,7 +201,7 @@ function ComparePanel({regions,focusKey,firstCode,secondCode,onFirst,onSecond}){
 }
 function DetailData({daily,focusKey,observations}){
  const focus=ENERGY_FIELDS.find(f=>f.key===focusKey);
- return <details className="disclosure-block" id="donnees">
+ return <details open className="disclosure-block" id="donnees">
   <summary><span><strong>Données journalières</strong><small>{daily.length} jour(s) dans la sélection · tableau et décomposition</small></span><span aria-hidden="true">+</span></summary>
   <div className="disclosure-content">
    <div className="table-viewport" role="region" aria-label="Tableau de données journalières" tabIndex={0}><table className="daily-table"><thead><tr><th>Date</th><th>Production étudiée (TWh)</th><th>Consommation (TWh)</th><th>Renouvelables (TWh)</th>{focus&&<th>{focus.name} (TWh)</th>}</tr></thead><tbody>{daily.map(r=><tr key={r.date}><th>{formatDate(r.date)}</th><td>{twh(r.production_mwh,3)}</td><td>{twh(r.consommation_mwh,3)}</td><td>{twh(r.renouvelables_mwh,3)}</td>{focus&&<td>{twh(r[focus.key],3)}</td>}</tr>)}</tbody></table></div>
@@ -221,21 +222,28 @@ function DataLineage(){
   </div>
   <p className="scope-note">Technologies réellement utilisées : Databricks Free Edition, PySpark, Delta Lake, SQL, Power BI (PBIP / TMDL / DAX) et React. Microsoft Fabric n'a pas été utilisé.</p>
   <div className="lineage-links"><a href={REPO+'/tree/main/notebooks'} target="_blank" rel="noreferrer">Notebooks ↗</a><a href={REPO+'/tree/main/sql'} target="_blank" rel="noreferrer">Requêtes SQL ↗</a><a href={REPO+'/tree/main/powerbi'} target="_blank" rel="noreferrer">Rapport Power BI ↗</a><a href={REPO+'/blob/main/docs/architecture.md'} target="_blank" rel="noreferrer">Architecture ↗</a></div>
-  <details className="disclosure-block methodology-disclosure"><summary><span><strong>Méthode, définitions et limites</strong><small>Source, calculs, licences et précautions d'interprétation</small></span><span aria-hidden="true">+</span></summary><Methodology/></details>
+
  </section>;
 }
 function App(){
  const [data,setData]=useState(null),[error,setError]=useState('');
+ const [tab,setTab]=useState('exploration'),[drawer,setDrawer]=useState('');
  const [scope,setScope]=useState('all'),[mapMetric,setMapMetric]=useState('production_mwh'),[focusKey,setFocusKey]=useState('all');
  const [start,setStart]=useState('2024-01-01'),[end,setEnd]=useState('2024-01-31');
  const [compareA,setCompareA]=useState(''),[compareB,setCompareB]=useState('');
  useEffect(()=>{
   const controller=new AbortController();
   Promise.all(['fact_energie.csv','dim_region.csv','dim_date.csv'].map(file=>fetch('/data/'+file,{signal:controller.signal}).then(r=>{if(!r.ok)throw new Error('Le fichier '+file+' est indisponible.');return r.text()})))
-   .then(([facts,regions,dates])=>setData(loadGoldFacts(facts,regions,dates)))
-   .catch(e=>{if(e.name!=='AbortError')setError(e.message)});
+    .then(([facts,regions,dates])=>setData(loadGoldFacts(facts,regions,dates)))
+    .catch(e=>{if(e.name!=='AbortError')setError(e.message)});
   return()=>controller.abort();
  },[]);
+ useEffect(()=>{
+  if(!drawer)return undefined;
+  const onKey=event=>{if(event.key==='Escape')setDrawer('')};
+  document.addEventListener('keydown',onKey);
+  return()=>document.removeEventListener('keydown',onKey);
+ },[drawer]);
  const all=data?.rows||[];
  const periodFacts=useMemo(()=>selectFacts(all,{start,end}),[all,start,end]);
  const selected=useMemo(()=>selectFacts(periodFacts,{region:scope}),[periodFacts,scope]);
@@ -254,29 +262,74 @@ function App(){
  const chooseSecond=code=>{setCompareB(code);if(code===firstCode)setCompareA(sortedRegions.find(r=>r.code!==code)?.code||'')};
  const reset=()=>{setScope('all');setStart('2024-01-01');setEnd('2024-01-31');setFocusKey('all');setMapMetric('production_mwh');setCompareA('');setCompareB('')};
  const filtersActive=scope!=='all'||start!=='2024-01-01'||end!=='2024-01-31'||focusKey!=='all'||compareA!==''||compareB!=='';
- return <div className="workspace-shell cockpit-v4">
+ const tabTitles={
+  exploration:['Analyse territoriale','Explorez les régions et le mix électrique.'],
+  comparaison:['Comparaison régionale','Confrontez les douze territoires sur une période commune.'],
+  tracabilite:['Du signal à la donnée','Retrouvez les étapes et les livrables de ce projet DATA.']
+ };
+ return <div className="workspace-shell cockpit-v4 cockpit-v42">
   <header className="work-toolbar">
-   <a href="#exploration" className="work-ident" aria-label="France Électricité, retour au début"><strong>France <span>/</span> Électricité</strong><small>Observatoire · janvier 2024</small></a>
-   <nav className="work-nav" aria-label="Sections du cockpit">{NAV.map(([id,label])=><a key={id} href={'#'+id}>{label}</a>)}</nav>
-   <div className="toolbar-actions"><div className="toolbar-dates"><DateField label="Du" value={start} min="2024-01-01" max={end} onChange={setStart}/><DateField label="Au" value={end} min={start} max="2024-01-31" onChange={setEnd}/></div><Export rows={selected}/></div>
+   <button type="button" className="work-ident work-home" aria-label="Revenir à l'exploration" onClick={()=>setTab('exploration')}><strong>France <span>/</span> Électricité</strong><small>Observatoire · janvier 2024</small></button>
+   <nav className="work-nav" aria-label="Espaces analytiques">
+    {NAV.map(([id,label])=><button type="button" key={id} aria-current={tab===id?'page':undefined} className={tab===id?'current':''} onClick={()=>setTab(id)}>{label}</button>)}
+   </nav>
+   <div className="toolbar-actions">
+    <div className="toolbar-dates"><DateField label="Du" value={start} min="2024-01-01" max={end} onChange={setStart}/><DateField label="Au" value={end} min={start} max="2024-01-31" onChange={setEnd}/></div>
+    <Export rows={selected}/>
+   </div>
   </header>
   <main className="work-body">
    {error?<div role="alert" className="load-status"><h1>Chargement impossible</h1><p>{error}</p></div>:!data?<div role="status" className="load-status">Chargement des trois exports Gold…</div>:<>
-    <section className="context-strip" id="exploration">
-     <div className="context-title"><span className="subtle-eyebrow">RTE / ODRÉ · données définitives · 01–31 janvier 2024</span><h1>L'électricité en France, en données</h1><p>Un cockpit pour explorer 12 régions, six filières et la chaîne analytique du projet.</p></div>
-     <div className="context-scope"><label>Territoire<select aria-label="Territoire étudié" value={scope} onChange={e=>setScope(e.target.value)}><option value="all">France · 12 régions</option>{data.regions.map(r=><option key={r.code_insee_region} value={r.code_insee_region}>{r.region}</option>)}</select></label>{filtersActive&&<button type="button" onClick={reset}>Tout réinitialiser ×</button>}</div>
+    <section className="cockpit-topline">
+     <div className="context-title"><span className="subtle-eyebrow">RTE / ODRÉ · données définitives · janvier 2024</span><h1>{tabTitles[tab][0]}</h1><p>{tabTitles[tab][1]}</p></div>
+     <div className="context-scope">
+      <label>Territoire<select aria-label="Territoire étudié" value={scope} onChange={e=>setScope(e.target.value)}><option value="all">France · 12 régions</option>{data.regions.map(r=><option key={r.code_insee_region} value={r.code_insee_region}>{r.region}</option>)}</select></label>
+      {filtersActive&&<button type="button" onClick={reset}>Réinitialiser ×</button>}
+     </div>
     </section>
-    <div className="selection-ribbon"><span><strong>Périmètre</strong> {name}</span><span><strong>Période</strong> {formatDate(start)} – {formatDate(end)} 2024</span><span><strong>Filière</strong> {focus?.name||'Toutes les six filières'}</span><span>{selected.length} jours-régions</span></div>
+    <div className="selection-ribbon" aria-label="Périmètre sélectionné">
+     <span><strong>Période</strong> {formatDate(start)} – {formatDate(end)} 2024</span>
+     <span><strong>Filière</strong> {focus?.name||'Six filières'}</span>
+     <span>{selected.length} faits jour-région</span>
+    </div>
     <StatStrip data={totals} scopeLabel={name}/>
-    <InsightStrip items={observations}/>
-    <div className="main-split cockpit-map"><MapFigure regionData={allRegionSummaries} selected={scope} onSelect={setScope} metric={mapField} activeMetric={mapMetric} metricLabel={mapLabel} onMetricChange={setMapMetric}/><TerritoryInspector summary={totals} selected={scope} regions={data.regions} onReset={()=>setScope('all')} focusKey={focusKey} onFocusChange={setFocusKey}/></div>
-    <div className="analysis-grid"><TrendSection daily={daily} focusKey={focusKey}/><MixExplorer summary={totals} focusKey={focusKey} onFocusChange={setFocusKey}/></div>
-    <section className="comparison-section" id="comparaison"><div className="comparison-heading"><Heading kicker="Lecture comparative">Les territoires, côte à côte</Heading><p>La carte et le classement conservent les douze régions pour permettre la comparaison, même lorsqu'une région est sélectionnée.</p></div><div className="comparison-grid"><RegionTable allRegions={allRegionSummaries} selected={scope} onSelect={setScope} focusKey={focusKey}/><ComparePanel regions={sortedRegions} focusKey={focusKey} firstCode={firstCode} secondCode={secondCode} onFirst={chooseFirst} onSecond={chooseSecond}/></div></section>
-    <DetailData daily={daily} focusKey={focusKey}/>
-    <DataLineage/>
-    <footer className="workspace-footer"><span>RTE / ODRÉ · janvier 2024 · 12 régions hors Corse · données figées</span><span><a href={regionsGeo.source} target="_blank" rel="noreferrer">Contours IGN / france-geojson</a> · <a href={REPO} target="_blank" rel="noreferrer">Code, SQL et Power BI ↗</a></span></footer>
+    {tab==='exploration'&&<>
+     <div className="cockpit-center-grid">
+      <MapFigure regionData={allRegionSummaries} selected={scope} onSelect={setScope} metric={mapField} activeMetric={mapMetric} metricLabel={mapLabel} onMetricChange={setMapMetric}/>
+      <TerritoryInspector summary={totals} selected={scope} regions={data.regions} onReset={()=>setScope('all')} focusKey={focusKey} onFocusChange={setFocusKey}/>
+     </div>
+     <div className="cockpit-bottom-grid">
+      <TrendSection daily={daily} focusKey={focusKey}/>
+      <InsightStrip items={observations}/>
+     </div>
+    </>}
+    {tab==='comparaison'&&<div className="comparison-screen">
+     <div className="compare-intro"><span className="section-kicker">Territoires · {formatDate(start)} – {formatDate(end)}</span><p>Sélectionnez une région dans le classement pour mettre à jour le cockpit. Les volumes A/B restent calculés sur les douze régions à période identique.</p></div>
+     <div className="comparison-grid">
+      <RegionTable allRegions={allRegionSummaries} selected={scope} onSelect={setScope} focusKey={focusKey}/>
+      <ComparePanel regions={sortedRegions} focusKey={focusKey} firstCode={firstCode} secondCode={secondCode} onFirst={chooseFirst} onSecond={chooseSecond}/>
+     </div>
+    </div>}
+    {tab==='tracabilite'&&<div className="provenance-screen">
+     <DataLineage/>
+     <div className="provenance-shortcuts">
+      <div><span className="section-kicker">Données Gold</span><h3>Consulter les mesures</h3><p>{selected.length} lignes filtrées par région et par date, avec les six filières. Export CSV disponible à tout moment.</p><button type="button" onClick={()=>setDrawer('donnees')}>Ouvrir les données <span aria-hidden="true">↗</span></button></div>
+      <div><span className="section-kicker">Transparence</span><h3>Définitions & limites</h3><p>Conversion des MW en MWh, part renouvelable, périmètre géographique et limites d'interprétation.</p><button type="button" onClick={()=>setDrawer('methode')}>Voir la méthode <span aria-hidden="true">↗</span></button></div>
+     </div>
+    </div>}
+    <footer className="workspace-footer">
+     <span>RTE / ODRÉ · janvier 2024 · données figées · 12 régions hors Corse</span>
+     <div className="status-actions"><button type="button" onClick={()=>setDrawer('donnees')}>Données <span aria-hidden="true">↗</span></button><button type="button" onClick={()=>setDrawer('methode')}>Méthode <span aria-hidden="true">↗</span></button><a href={REPO} target="_blank" rel="noreferrer">GitHub ↗</a></div>
+    </footer>
    </>}
   </main>
+  {drawer&&data&&<div className="drawer-layer">
+   <button className="drawer-backdrop" type="button" aria-label="Fermer le détail" onClick={()=>setDrawer('')}/>
+   <aside className="data-drawer" role="dialog" aria-modal="true" aria-label={drawer==='donnees'?'Données journalières':'Méthode et sources'}>
+    <div className="drawer-header"><div><span className="section-kicker">France Électricité · janvier 2024</span><h2>{drawer==='donnees'?'Données journalières':'Méthode et sources'}</h2></div><button type="button" className="drawer-close" autoFocus onClick={()=>setDrawer('')} aria-label="Fermer le panneau">✕</button></div>
+    <div className="drawer-content">{drawer==='donnees'?<DetailData daily={daily} focusKey={focusKey}/>:<Methodology/>}</div>
+   </aside>
+  </div>}
  </div>;
 }
 createRoot(document.getElementById('root')).render(<App/>);
