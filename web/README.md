@@ -4,9 +4,9 @@ L'application React + Vite présente le travail du projet **Databricks / PySpark
 
 **Périmètre réel :** janvier 2024 uniquement ; 12 régions métropolitaines hors Corse ; six filières. 17 856 relevés demi-horaires RTE / ODRÉ ingérés dans Databricks, transformés en Silver Delta puis agrégés en 372 faits jour × région. **Microsoft Fabric n'a pas été utilisé.** Aucun streaming, backend ou temps réel.
 
-## V5 — un seul regard, toutes les visualisations essentielles
+## V5.6 — cockpit épuré et outil de données à la demande
 
-Le cockpit affiche ensemble : **4 KPI**, carte interactive des **12 régions**, mix des **6 filières**, courbe quotidienne production/consommation, **comparaison A/B**, bandeau de la chaîne DATA. Il ne comporte **aucune navigation entre espaces Explorer/Comparer/Traçabilité**. Le détail est présenté uniquement sur demande, dans un panneau latéral :
+Le cockpit affiche ensemble : **4 KPI**, carte interactive des **12 régions**, mix des **6 filières**, courbe quotidienne production/consommation, **comparaison A/B**. Il ne comporte **aucune navigation entre espaces Explorer/Comparer/Traçabilité**. Le détail est présenté uniquement sur demande, dans un espace flottant accessible depuis la barre d'outils :
 
 - **Données :** détail quotidien, graphique empilé et export CSV filtré ;
 - **Régions :** classement complet, triable, sélection rapide ;
@@ -28,6 +28,14 @@ Les comparaisons sont des **volumes absolus** : un différentiel entre régions 
 - Sur mobile, tablette ou fenêtre plus basse que 620 px, le défilement reste volontaire.
 
 Les tests de régression statiques complètent la vérification des données et la compilation ; la recette visuelle reste nécessaire.
+
+### V5.6 — mise en page et panneau flottant
+
+Le bandeau « Du brut à l'analyse » et le pied de page du cockpit ont été retirés. Leur hauteur est réaffectée à **Série temporelle** et **Comparaison A/B**, sans défilement desktop dans les dimensions prises en charge par V5.5. Le titre principal devient « L’électricité française ».
+
+Le bouton **Données** de la barre supérieure ouvre une *palette de données* flottante au lieu du drawer latéral. Elle propose quatre vues réunies sous une seule interaction : **Données Gold** (Tableau / Graphique), **12 régions**, **Chaîne DATA** (preuves Databricks, Gold, SQL et Power BI) et **Méthode**. Fermeture par Échap, par clic à l'extérieur ou par la commande de fermeture ; navigation clavier accessible et animation désactivée si réduction des mouvements demandée. L'export CSV est distinct et reste accessible en permanence.
+
+Cette refonte ne change ni les trois fichiers Gold, ni les calculs, ni le périmètre janvier 2024.
 
 ## Installation et tests
 
