@@ -1,0 +1,29 @@
+name: Web explorer / quality
+on:
+  push:
+    branches: [feature/vercel-energy-dashboard, design/energy-data-cockpit-v4, design/energy-data-cockpit-v4-1, design/energy-cockpit-v4-2, design/energy-cockpit-v4-3, design/energy-showcase-v5, design/energy-showcase-v5-1, design/energy-showcase-v5-2, design/energy-showcase-v5-3, design/energy-showcase-v5-4, design/energy-showcase-v5-5, design/energy-showcase-v5-6, design/energy-showcase-v5-7]
+    paths: ['web/**', '.github/workflows/web-explorer.yml']
+  pull_request:
+    paths: ['web/**', '.github/workflows/web-explorer.yml']
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install
+        run: npm install --no-fund
+      - name: Security audit
+        run: npm audit --audit-level=high
+      - name: Validate real Gold data and KPI formulas
+        run: npm test
+      - name: Build Vercel application
+        run: npm run build

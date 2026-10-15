@@ -1,0 +1,262 @@
+/* V5.5 — laptop viewport-fit regression fix
+ *
+ * V4.2 includes a legacy breakpoint at max-height:770px that makes
+ * .cockpit-v42 scroll, switches .work-body to natural height, and gives
+ * .geography .map-layout a 280px minimum. A browser with its toolbars
+ * shown (especially with display scaling) can fall below 770 CSS px.
+ *
+ * V5.5 scopes the ONE-SCREEN layout to the combined V4.2/V5 root and
+ * uses selectors of higher specificity than the legacy fallback.
+ * It retains the V5.4 adaptive TWh axis labels and V5.2 detail drawer.
+ */
+
+/* Laptop and desktop, including the 620–770 CSS-pixel range. */
+@media (min-width:1160px) and (min-height:620px) {
+  .cockpit-v42.cockpit-v5 {
+    display:flex;
+    flex-direction:column;
+    height:100dvh;
+    min-height:0;
+    max-height:100dvh;
+    overflow:hidden;
+  }
+  .cockpit-v42.cockpit-v5 .v5-header {
+    position:relative;
+    top:auto;
+    flex:0 0 56px;
+    height:56px;
+    min-height:56px;
+    padding-top:0;
+    padding-bottom:0;
+  }
+  .cockpit-v42.cockpit-v5 .v5-body {
+    display:grid;
+    flex:1 1 0%;
+    height:auto;
+    min-height:0;
+    overflow:hidden;
+    grid-template-rows:
+      clamp(50px,8vh,68px)
+      clamp(58px,9vh,74px)
+      minmax(0,1fr)
+      clamp(180px,24vh,192px)
+      34px
+      22px;
+  }
+  .cockpit-v42.cockpit-v5 .v5-hero {
+    height:100%;
+    min-height:0;
+    padding:0;
+    flex-wrap:nowrap;
+  }
+  .cockpit-v42.cockpit-v5 .stat-strip {
+    height:100%;
+    min-height:0;
+    padding:6px 0;
+    flex:initial;
+  }
+  .cockpit-v42.cockpit-v5 .v5-main,
+  .cockpit-v42.cockpit-v5 .v5-lower {
+    display:grid;
+    height:auto;
+    min-height:0;
+    max-height:100%;
+    overflow:hidden;
+    flex:none;
+  }
+  .cockpit-v42.cockpit-v5 .v5-map {
+    display:flex;
+    flex-direction:column;
+    height:100%;
+    min-height:0;
+    max-height:100%;
+    overflow:hidden;
+  }
+  .cockpit-v42.cockpit-v5 .v5-map .geography {
+    display:flex;
+    flex-direction:column;
+    height:100%;
+    min-height:0;
+    max-height:100%;
+    overflow:hidden;
+    padding:7px 19px 4px 0;
+  }
+  .cockpit-v42.cockpit-v5 .v5-map .map-layout {
+    display:flex;
+    flex:1 1 0%;
+    height:0;
+    min-height:0;
+    max-height:100%;
+    overflow:hidden;
+    align-items:center;
+    justify-content:center;
+    margin:0;
+  }
+  .cockpit-v42.cockpit-v5 .v5-map .france-map {
+    display:block;
+    height:100%;
+    width:auto;
+    min-height:0;
+    max-width:100%;
+    max-height:100%;
+    transform:none;
+  }
+  .cockpit-v42.cockpit-v5 .v5-map .map-instruction {display:none}
+  .cockpit-v42.cockpit-v5 .v5-map .map-subtitle {margin-top:3px}
+  .cockpit-v42.cockpit-v5 .v5-map .map-scale {bottom:8px;left:6px}
+  .cockpit-v42.cockpit-v5 .v5-mix {
+    display:flex;
+    flex-direction:column;
+    height:100%;
+    min-height:0;
+    max-height:100%;
+    overflow:hidden;
+    padding:9px 0 5px clamp(18px,2.25vw,36px);
+  }
+  .cockpit-v42.cockpit-v5 .v5-mix-strip {
+    flex:0 0 14px;
+    height:14px;
+    margin:7px 0 6px;
+  }
+  .cockpit-v42.cockpit-v5 .v5-mix-list {
+    flex:1 1 0%;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-evenly;
+    height:auto;
+    min-height:0;
+    max-height:100%;
+    gap:0;
+    overflow:hidden;
+  }
+  .cockpit-v42.cockpit-v5 .v5-mix-row {
+    flex:1 1 0%;
+    height:auto;
+    min-height:0;
+    max-height:34px;
+    padding:2px 3px;
+    line-height:1.15;
+    gap:6px;
+  }
+  .cockpit-v42.cockpit-v5 .v5-panel-hint {
+    flex:0 0 auto;
+    min-height:13px;
+    padding-top:3px;
+  }
+  .cockpit-v42.cockpit-v5 .v5-trend {
+    min-height:0;
+    max-height:100%;
+    overflow:hidden;
+    padding:7px 17px 6px 0;
+  }
+  .cockpit-v42.cockpit-v5 .v5-trend .time-series {
+    height:100%;
+    min-height:0;
+  }
+  .cockpit-v42.cockpit-v5 .v5-trend .curve-wrap {
+    display:flex;
+    flex:1 1 0%;
+    min-height:0;
+    max-height:100%;
+    overflow:hidden;
+  }
+  .cockpit-v42.cockpit-v5 .v5-trend .curve-plot {
+    flex:1 1 auto;
+    display:block;
+    height:100%;
+    min-height:0;
+    max-height:100%;
+    width:100%;
+  }
+  .cockpit-v42.cockpit-v5 .v53-compare {
+    min-height:0;
+    max-height:100%;
+    height:100%;
+    overflow:hidden;
+    padding:7px 0 5px clamp(14px,1.8vw,29px);
+  }
+  .cockpit-v42.cockpit-v5 .v5-pipeline {
+    display:flex;
+    align-items:center;
+    height:100%;
+    min-height:0;
+    overflow:hidden;
+    padding:0;
+  }
+  .cockpit-v42.cockpit-v5 .v5-pipeline-stages {min-width:0}
+  .cockpit-v42.cockpit-v5 .v5-footer {
+    display:flex;
+    min-height:0;
+    height:100%;
+    padding:0;
+  }
+}
+
+/* Small laptop heights: save space in headings, NOT by removing chart
+ * labels or cutting the comparison's A/B bars. */
+@media (min-width:1160px) and (min-height:620px) and (max-height:730px) {
+  .cockpit-v42.cockpit-v5 .v5-body {
+    grid-template-rows:
+      50px 58px minmax(0,1fr) 180px 33px 22px;
+  }
+  .cockpit-v42.cockpit-v5 .v5-hero h1 {font-size:23px;margin-top:3px}
+  .cockpit-v42.cockpit-v5 .v5-controls .v5-region-control select,
+  .cockpit-v42.cockpit-v5 .v5-controls .date-control input {
+    height:31px;
+    min-height:31px;
+  }
+  .cockpit-v42.cockpit-v5 .v5-map .geography {padding-top:5px}
+  .cockpit-v42.cockpit-v5 .v5-map .v53-map-label {font-size:18px}
+  .cockpit-v42.cockpit-v5 .v5-map .v54-label-dense {font-size:16.5px}
+  .cockpit-v42.cockpit-v5 .v5-mix .v5-panel-title h2 {font-size:16px}
+  .cockpit-v42.cockpit-v5 .v5-mix-strip {flex-basis:12px;height:12px;margin:6px 0 4px}
+  .cockpit-v42.cockpit-v5 .v5-mix-row {max-height:31px}
+  .cockpit-v42.cockpit-v5 .v5-mix-name {font-size:11px}
+  .cockpit-v42.cockpit-v5 .v5-trend .section-heading h2 {font-size:15px}
+  .cockpit-v42.cockpit-v5 .v5-trend .v53-peak-label {font-size:10px}
+  .cockpit-v42.cockpit-v5 .v5-pipeline-stage small {font-size:9.5px}
+}
+
+/* Restore the readable reference sizing: the V5.4 increase to 20px on
+ * the SVG looked oversized at some viewport ratios. Path text stays
+ * accessible through SVG <title> as well as the shorter visible names. */
+.cockpit-v42.cockpit-v5 .v5-map .v53-map-label {
+  font-size:18.5px;
+  font-weight:720;
+  stroke-width:2.1px;
+}
+.cockpit-v42.cockpit-v5 .v5-map .v54-label-dense {
+  font-size:16.5px;
+  stroke-width:2px;
+}
+
+/* Scroll is intentional for mobile, narrow layouts, and extremely short
+ * browser windows. No artificial crop when labels cannot remain readable. */
+@media (min-width:1160px) and (max-height:619px) {
+  .cockpit-v42.cockpit-v5 {
+    height:auto;
+    min-height:100dvh;
+    max-height:none;
+    overflow:visible;
+  }
+  .cockpit-v42.cockpit-v5 .v5-body {
+    display:flex;
+    flex-direction:column;
+    min-height:0;
+    overflow:visible;
+  }
+  .cockpit-v42.cockpit-v5 .v5-hero {min-height:68px}
+  .cockpit-v42.cockpit-v5 .stat-strip {min-height:78px}
+  .cockpit-v42.cockpit-v5 .v5-main {min-height:345px}
+  .cockpit-v42.cockpit-v5 .v5-lower {min-height:211px}
+  .cockpit-v42.cockpit-v5 .v5-pipeline {min-height:43px}
+  .cockpit-v42.cockpit-v5 .v5-footer {min-height:27px}
+  .cockpit-v42.cockpit-v5 .v5-map .map-layout {min-height:0;flex:1}
+  .cockpit-v42.cockpit-v5 .v5-map .france-map {max-height:290px}
+}
+
+/* Narrow devices keep the existing mobile vertical layout. */
+@media (max-width:1159px) {
+  .cockpit-v42.cockpit-v5 {height:auto;min-height:100dvh;max-height:none;overflow:visible}
+  .cockpit-v42.cockpit-v5 .v5-body {display:flex;flex-direction:column;min-height:0;overflow:visible}
+}

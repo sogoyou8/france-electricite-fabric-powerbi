@@ -1,0 +1,201 @@
+/* V5.1 — desktop viewport-fit and density corrections after screenshot review.
+   Targets ordinary browser windows, including laptop displays / Windows scaling.
+   No data, metric or interaction logic is changed. */
+
+/* A compact dashboard must not inherit tall page breakpoints from V4.2. */
+@media (min-width:1160px) and (min-height:620px) {
+ .cockpit-v5{
+   height:100dvh;
+   min-height:0;
+   max-height:100dvh;
+   overflow:hidden;
+   display:flex;
+   flex-direction:column;
+ }
+ .cockpit-v5 .v5-header{
+   position:relative;
+   top:auto;
+   flex:0 0 56px;
+   height:56px;
+   min-height:56px;
+   padding-top:0;
+   padding-bottom:0;
+ }
+ .cockpit-v5 .v5-body{
+   display:grid;
+   flex:1 1 0%;
+   min-height:0;
+   height:auto;
+   grid-template-rows:
+      clamp(60px,9vh,74px)
+      clamp(65px,9.5vh,80px)
+      minmax(0,1.5fr)
+      minmax(0,.88fr)
+      34px
+      23px;
+   overflow:hidden;
+ }
+ .cockpit-v5 .v5-hero{min-height:0;height:100%;padding:0}
+ .cockpit-v5 .stat-strip{min-height:0;height:100%;padding:7px 0}
+ .cockpit-v5 .stat-item span{margin:0 0 5px}
+ .cockpit-v5 .stat-item strong{font-size:clamp(23px,2.15vw,32px)}
+ .cockpit-v5 .v5-main,
+ .cockpit-v5 .v5-lower{
+   display:grid;
+   min-height:0;
+   height:auto;
+   overflow:hidden;
+   flex:none;
+ }
+ .cockpit-v5 .v5-map{height:100%;min-height:0;overflow:hidden}
+ .cockpit-v5 .v5-map .geography{
+   display:flex;
+   flex-direction:column;
+   height:100%;
+   min-height:0;
+   max-height:100%;
+   padding:10px 20px 5px 0;
+   overflow:hidden;
+ }
+ .cockpit-v5 .v5-map .map-layout{
+   flex:1 1 0%;
+   height:0;
+   min-height:0;
+   max-height:100%;
+   overflow:hidden;
+   margin:0;
+   align-items:center;
+ }
+ .cockpit-v5 .v5-map .france-map{
+   display:block;
+   width:auto;
+   height:100%;
+   max-width:100%;
+   max-height:100%;
+   min-height:0;
+   transform:scale(1.03);
+ }
+ .cockpit-v5 .v5-map .map-label{font-size:17px;font-weight:670}
+ .cockpit-v5 .v5-map .map-subtitle{font-size:10px;margin-top:3px}
+ .cockpit-v5 .v5-map .section-heading h2{font-size:clamp(16px,1.35vw,20px)}
+ .cockpit-v5 .v5-map .map-instruction{display:none}
+ .cockpit-v5 .v5-map .map-scale{bottom:8px;left:5px}
+ .cockpit-v5 .v5-mix{
+   min-height:0;
+   height:100%;
+   overflow:hidden;
+   padding-top:11px;
+   padding-bottom:7px;
+ }
+ .cockpit-v5 .v5-mix .v5-panel-title h2{font-size:clamp(16px,1.35vw,20px)}
+ .cockpit-v5 .v5-mix-strip{
+   flex:0 0 15px;
+   height:15px;
+   margin:9px 0 7px;
+ }
+ .cockpit-v5 .v5-mix-list{
+   flex:1 1 0%;
+   display:flex;
+   flex-direction:column;
+   justify-content:space-evenly;
+   min-height:0;
+   max-height:100%;
+   gap:0;
+   overflow:hidden;
+ }
+ .cockpit-v5 .v5-mix-row{
+   flex:1 1 0%;
+   min-height:0;
+   max-height:36px;
+   height:auto;
+   padding:2px 3px;
+   gap:6px;
+ }
+ .cockpit-v5 .v5-mix-name{font-size:11px}
+ .cockpit-v5 .v5-mix-row strong{font-size:11px}
+ .cockpit-v5 .v5-mix-pct{font-size:10px}
+ .cockpit-v5 .v5-panel-hint{font-size:9.5px;min-height:15px;padding-top:3px}
+ .cockpit-v5 .v5-trend{
+   min-height:0;
+   max-height:100%;
+   overflow:hidden;
+   padding:7px 17px 5px 0;
+ }
+ .cockpit-v5 .v5-trend .time-series{height:100%;min-height:0}
+ .cockpit-v5 .v5-trend .section-heading h2{font-size:15px;margin-top:3px}
+ .cockpit-v5 .v5-trend .chart-unit{margin:2px 0 2px}
+ .cockpit-v5 .v5-trend .curve-wrap{
+   flex:1 1 0%;
+   display:flex;
+   align-items:stretch;
+   min-height:0;
+   max-height:100%;
+   overflow:hidden;
+ }
+ .cockpit-v5 .v5-trend .curve-plot{
+   flex:1;
+   height:100%;
+   min-height:0;
+   max-height:100%;
+   width:100%;
+ }
+ .cockpit-v5 .v5-peak{bottom:4px;right:18px;font-size:9px}
+ .cockpit-v5 .v5-compare{
+   min-height:0;
+   max-height:100%;
+   overflow:hidden;
+   padding:7px 0 5px clamp(14px,1.8vw,29px);
+ }
+ .cockpit-v5 .v5-compare .v5-panel-title h2{font-size:16px}
+ .cockpit-v5 .v5-compare-select{margin:4px 0 4px}
+ .cockpit-v5 .v5-compare-select label{gap:2px}
+ .cockpit-v5 .v5-compare-select select{min-height:27px;height:27px}
+ .cockpit-v5 .v5-vs{padding-bottom:7px}
+ .cockpit-v5 .v5-compare-amounts{min-height:49px;padding:5px 0 3px}
+ .cockpit-v5 .v5-compare-amounts small{margin-bottom:2px}
+ .cockpit-v5 .v5-compare-amounts strong{font-size:clamp(16px,1.45vw,20px)}
+ .cockpit-v5 .v5-paired-bars{padding-top:3px;gap:3px}
+ .cockpit-v5 .v5-paired-bar{height:4px}
+ .cockpit-v5 .v5-compare>.v5-panel-hint{padding-top:2px}
+ .cockpit-v5 .v5-pipeline{
+   min-height:0;
+   height:100%;
+   padding:0;
+   overflow:hidden;
+ }
+ .cockpit-v5 .v5-pipeline-stage strong{font-size:10px}
+ .cockpit-v5 .v5-footer{min-height:0;height:100%;padding:0;font-size:9px}
+}
+
+/* A conventional small laptop may have a very short CSS viewport. Scroll
+   only when compressing further would make labels or controls unreadable. */
+@media(min-width:1160px) and (min-height:620px) and (max-height:700px){
+ .cockpit-v5 .v5-body{
+  grid-template-rows:56px 62px minmax(0,1.65fr) minmax(0,.88fr) 31px 21px;
+ }
+ .cockpit-v5 .v5-hero h1{font-size:23px;margin-top:4px}
+ .cockpit-v5 .v5-controls .v5-date-controls .date-control input{min-height:31px;height:31px}
+ .cockpit-v5 .v5-controls .v5-region-control select{min-height:31px;height:31px}
+ .cockpit-v5 .v5-main .v5-panel-title h2{font-size:16px}
+ .cockpit-v5 .v5-mix-strip{height:12px;flex-basis:12px}
+ .cockpit-v5 .v5-mix-row{max-height:30px}
+ .cockpit-v5 .v5-mix .v5-panel-hint{display:none}
+ .cockpit-v5 .v5-trend .v5-peak{display:none}
+}
+
+/* Override V4.x fallback only for the desktop viewport-fit mode above.
+   Preserve natural scrolling for phones, tablets and truly short windows. */
+@media(min-width:1160px) and (max-height:619px){
+ .cockpit-v5{min-height:0;height:auto;overflow:visible}
+ .cockpit-v5 .v5-body{min-height:0;overflow:visible}
+}
+
+@media(max-width:790px){
+ .cockpit-v5 .v5-map .map-instruction{display:block}
+ .cockpit-v5 .v5-map .france-map{transform:none}
+}
+
+/* Maintains low-motion preference in new compact sizing. */
+@media(prefers-reduced-motion:reduce){
+ .cockpit-v5 .v5-mix-row{transition:none}
+}
