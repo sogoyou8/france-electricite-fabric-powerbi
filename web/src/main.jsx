@@ -131,10 +131,11 @@ function TrendSection({daily,large=false,focusKey='all'}){
 }
 function RegionTable({allRegions,selected,onSelect,focusKey='all'}){
  const [order,setOrder]=useState('production_mwh');
- const rows=[...allRegions].sort((a,b)=>b[order]-a[order]);
  const focus=ENERGY_FIELDS.find(f=>f.key===focusKey);
+ const activeOrder=['production_mwh','consommation_mwh','renouvelables_mwh',focusKey].includes(order)?order:'production_mwh';
+ const rows=[...allRegions].sort((a,b)=>b[activeOrder]-a[activeOrder]);
  return <section className="ranking"><Heading counter="02" kicker="Comparaison"
-  aside={<label className="table-sort">Classer par <select value={order} onChange={e=>setOrder(e.target.value)}><option value="production_mwh">Production</option><option value="consommation_mwh">Consommation</option><option value="renouvelables_mwh">Renouvelables</option>{focus&&<option value={focus.key}>{focus.name}</option>}</select></label>}>Les régions en chiffres</Heading>
+  aside={<label className="table-sort">Classer par <select value={activeOrder} onChange={e=>setOrder(e.target.value)}><option value="production_mwh">Production</option><option value="consommation_mwh">Consommation</option><option value="renouvelables_mwh">Renouvelables</option>{focus&&<option value={focus.key}>{focus.name}</option>}</select></label>}>Les régions en chiffres</Heading>
  <div className="table-viewport" role="region" aria-label="Classement des régions" tabIndex={0}><table><thead><tr><th>Région</th><th>Production (TWh)</th><th>Consommation (TWh)</th><th>Renouvelables (%)</th>{focus&&<th>{focus.name} (TWh)</th>}</tr></thead><tbody>{rows.map(r=><tr key={r.code} className={selected===r.code?'is-selected':''} onClick={()=>onSelect(r.code)} onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();onSelect(r.code)}}} tabIndex={0} aria-label={'Sélectionner '+r.region}><th>{r.region}</th><td>{twh(r.production_mwh)}</td><td>{twh(r.consommation_mwh)}</td><td>{pct(r.part_renouvelables)}</td>{focus&&<td>{twh(r[focus.key])}</td>}</tr>)}</tbody></table></div>
  </section>;
 }
