@@ -13,10 +13,19 @@ import './interface-v4-3.css';
 import './interface-v5.css';
 import './interface-v5-1.css';
 import './interface-v5-2.css';
+import './interface-v5-3.css';
 
 const REPO='https://github.com/sogoyou8/france-electricite-fabric-powerbi';
 const NAV=[['exploration','Explorer'],['comparaison','Comparer'],['tracabilite','Traçabilité']];
 const MAP_COLORS=['#e7eef7','#c7dcf4','#9ec3eb','#6f9fd4','#427cb9','#205a9a','#123c74'];
+// Tight framing preserves every outline while freeing the old horizontal whitespace.
+const V53_MAP_VIEWBOX='55 8 650 580';
+const V53_MAP_LABELS={
+ '11':['Paris'],'24':['Centre-Val','de Loire'],'27':['Bourgogne','Fr.-Comté'],
+ '28':['Normandie'],'32':['Hauts-de','France'],'44':['Grand Est'],
+ '52':['Pays de','la Loire'],'53':['Bretagne'],'75':['Nouvelle','Aquitaine'],
+ '76':['Occitanie'],'84':['Auvergne','Rhône-Alpes'],'93':['Provence','Alpes']
+};
 const SHORT_DATE=new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'short',timeZone:'UTC'});
 function formatDate(date){return SHORT_DATE.format(new Date(date+'T12:00:00Z'))}
 function Arrow({direction='right'}){return <span aria-hidden="true" className="arrow-symbol">{direction==='right'?'↗':'↘'}</span>}
@@ -60,7 +69,7 @@ function MapFigure({regionData,selected,onSelect,metric,onMetricChange,activeMet
    </Heading>
    <div className="map-subtitle">Période filtrée · volumes agrégés (TWh)</div>
    <div className="map-layout">
-    <svg className="france-map" viewBox={regionsGeo.viewBox} role="group" aria-label="Carte interactive des douze régions : choisissez une région pour afficher ses données">
+    <svg className="france-map" viewBox={V53_MAP_VIEWBOX} role="group" aria-label="Carte interactive des douze régions : choisissez une région pour afficher ses données">
      {regionsGeo.regions.map(region=>{
        const item=regionMap[region.code];
        const val=item?.[metric]||0;
@@ -72,7 +81,9 @@ function MapFigure({regionData,selected,onSelect,metric,onMetricChange,activeMet
          onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();onSelect(active?'all':region.code)}}}>
          <title>{region.name} — {twh(val,2)} TWh</title>
         </path>
-        {region.short&&<text className={'map-label '+(val/max>.62?'map-label-on-dark':'')} x={region.center[0]} y={region.center[1]} textAnchor="middle" dominantBaseline="middle">{region.short}</text>}
+        {region.short&&<text className={'map-label v53-map-label '+(val/max>.62?'map-label-on-dark':'')} x={region.center[0]} y={region.center[1]} textAnchor="middle" dominantBaseline="middle" pointerEvents="none">
+         {(V53_MAP_LABELS[region.code]||[region.short]).map((line,i,lines)=><tspan key={i} x={region.center[0]} dy={i===0&&lines.length>1?'-0.52em':i>0?'1.12em':'0'}>{line}</tspan>)}
+        </text>}
         {active&&<circle className="selected-dot" cx={region.center[0]} cy={region.center[1]+12} r="3.4"/>}
        </g>
      })}
@@ -126,13 +137,13 @@ function LineChart({series,large=false,focusKey='all'}){
    <rect x={left} y={top} width={iw} height={ih} fill="transparent" onMouseMove={e=>{if(!series.length)return;const box=e.currentTarget.getBoundingClientRect();const f=(e.clientX-box.left)/box.width;setIndex(Math.max(0,Math.min(series.length-1,Math.round(f*(series.length-1)))));}} onMouseLeave={()=>setIndex(null)}/>
   </svg>{chosen&&<div className="curve-tooltip"><strong>{formatDate(chosen.date)}</strong><span>Production · {twh(chosen.production_mwh,3)} TWh</span><span>Consommation · {twh(chosen.consommation_mwh,3)} TWh</span>{focus&&<span>{focus.name} · {twh(chosen[focus.key],3)} TWh</span>}</div>}</div>;
 }
-function TrendSection({daily,large=false,focusKey='all'}){
+function TrendSection({daily,large=false,focusKey='all',peak=null}){
  const periodCaption=daily.length?(daily.length===1?formatDate(daily[0].date):formatDate(daily[0].date)+' – '+formatDate(daily[daily.length-1].date))+' 2024':'Aucune donnée';
  return <section className="time-series">
    <Heading counter={large?'01':'03'} kicker="Série temporelle" aside={<div className="line-legend"><span><i className="legend-production"/>Production étudiée</span><span><i className="legend-consumption"/>Consommation</span>{ENERGY_FIELDS.filter(f=>f.key===focusKey).map(f=><span key={f.key}><i style={{background:f.color}}/>{f.name}</span>)}</div>}>
     Production et consommation au fil des jours
    </Heading>
-   <div className="chart-unit">TWh par jour · {periodCaption}</div>
+   <div className="chart-unit v53-chart-meta"><span>TWh par jour · {periodCaption}</span>{peak&&<span className="v53-peak-label" title="Pic de production étudiée, calculé sur la sélection">Pic {formatDate(peak.date)} · {twh(peak.production_mwh,3)} TWh</span>}</div>
    <LineChart series={daily} large={large} focusKey={focusKey}/>
  </section>;
 }
@@ -284,33 +295,40 @@ function V5Mix({summary,focusKey,onSelect}){
   <div className="v5-panel-hint">{focus?focus.name+' · mis en évidence sur la carte et la courbe':'Sélectionnez une filière pour l’isoler visuellement'}</div>
  </section>;
 }
-function V5Compare({regions,focusKey,firstCode,secondCode,onFirst,onSecond,onDetails}){
+function V5Compare({regions,focusKey,firstCode,secondCode,onFirst,onSecond,onDetails,scopeCode='all',scopeName='',onUseScope}){
  const source=ENERGY_FIELDS.find(f=>f.key===focusKey);
  const key=source?.key||'production_mwh';
  const a=regions.find(r=>r.code===firstCode);
  const b=regions.find(r=>r.code===secondCode);
  const valid=Boolean(a&&b&&a.code!==b.code);
- const valueA=valid?a[key]:0,valueB=valid?b[key]:0;
- const max=Math.max(valueA,valueB,1);
- const diff=valueA-valueB;
- return <section className="v5-compare" aria-label="Comparer deux régions">
+ const va=valid?a[key]:0,vb=valid?b[key]:0;
+ const max=Math.max(va,vb,1),difference=va-vb;
+ return <section className="v5-compare v53-compare" aria-label="Comparaison de deux régions indépendante du territoire analysé">
   <div className="v5-panel-title">
-   <div><span className="v5-kicker">Même période · deux régions</span><h2>Face à face</h2></div>
-   <button className="v5-subtle-action" type="button" onClick={onDetails}>12 régions ↗</button>
+   <div><span className="v5-kicker">Même période · A/B indépendants</span><h2>Face à face</h2></div>
+   <button type="button" className="v5-subtle-action" onClick={onDetails}>12 régions ↗</button>
   </div>
-  <div className="v5-compare-select">
-   <label className="v52-region-a"><span><i aria-hidden="true"/> Région A</span><select aria-label="Première région" value={firstCode} onChange={e=>onFirst(e.target.value)}>{regions.map(r=><option key={r.code} value={r.code}>{r.region}</option>)}</select></label>
-   <span className="v5-vs" aria-hidden="true">vs</span>
-   <label className="v52-region-b"><span><i aria-hidden="true"/> Région B</span><select aria-label="Deuxième région" value={secondCode} onChange={e=>onSecond(e.target.value)}>{regions.map(r=><option key={r.code} value={r.code}>{r.region}</option>)}</select></label>
+  <div className="v53-select-row">
+   <label className="v53-select-a"><span><i aria-hidden="true"/> Région A</span><select aria-label="Première région comparée" value={firstCode} onChange={e=>onFirst(e.target.value)}>{regions.map(r=><option key={r.code} value={r.code}>{r.region}</option>)}</select></label>
+   <span className="v53-vs" aria-hidden="true">vs</span>
+   <label className="v53-select-b"><span><i aria-hidden="true"/> Région B</span><select aria-label="Deuxième région comparée" value={secondCode} onChange={e=>onSecond(e.target.value)}>{regions.map(r=><option key={r.code} value={r.code}>{r.region}</option>)}</select></label>
   </div>
-  {valid?<div className="v5-compare-data">
-    <div className="v5-compare-amounts"><div className="v52-amount-a"><small>A</small><strong>{twh(valueA,2)} <span>TWh</span></strong></div><div className="v52-amount-b"><small>B</small><strong>{twh(valueB,2)} <span>TWh</span></strong></div><div><small>Écart A − B</small><strong className="v5-diff">{diff>0?'+':''}{twh(diff,2)} <span>TWh</span></strong></div></div>
-    <div className="v5-paired-bars" aria-label="Volumes relatifs de la région A et de la région B">
-     <div className="v52-bar-row" title={'Région A : '+twh(valueA,2)+' TWh'}><span>A</span><span className="v5-paired-bar"><span style={{width:100*valueA/max+'%',background:'#376fc3'}}/></span></div>
-     <div className="v52-bar-row" title={'Région B : '+twh(valueB,2)+' TWh'}><span>B</span><span className="v5-paired-bar"><span style={{width:100*valueB/max+'%',background:'#48acb8'}}/></span></div>
-    </div>
-   </div>:<p className="v5-no-compare">Sélectionnez deux régions distinctes.</p>}
-  <div className="v5-panel-hint">{source?'Production '+source.name.toLowerCase():'Production des six filières'} · volumes comparables</div>
+  {valid?<div className="v53-compare-content">
+   <div className="v53-numbers" aria-label={source?'Production de '+source.name:'Production des six filières'}>
+    <div className="v53-number-a"><small>A</small><strong>{twh(va,2)}</strong><span>TWh</span></div>
+    <div className="v53-number-b"><small>B</small><strong>{twh(vb,2)}</strong><span>TWh</span></div>
+    <div className="v53-number-diff"><small>Écart A − B</small><strong>{difference>0?'+':''}{twh(difference,2)}</strong><span>TWh</span></div>
+   </div>
+   <div className="v53-bars" aria-label="Volumes de production comparés, par région">
+    <div className="v53-bar-row" title={'A : '+twh(va,2)+' TWh'}><span>A</span><div><i style={{width:va/max*100+'%'}}/></div></div>
+    <div className="v53-bar-row" title={'B : '+twh(vb,2)+' TWh'}><span>B</span><div><i style={{width:vb/max*100+'%'}}/></div></div>
+   </div>
+  </div>:<p className="v5-no-compare">Choisissez deux régions différentes.</p>}
+  <div className="v53-comparison-note">
+   {scopeCode!=='all'
+    ?<><span title="Le filtre Territoire pilote le cockpit, mais la comparaison A/B reste indépendante">Exploré : {scopeName} · A/B séparés</span><button type="button" disabled={scopeCode===firstCode} onClick={onUseScope}>Utiliser en A ↗</button></>
+    :<span title="Les deux régions A et B se comparent sur la période affichée, indépendamment du filtre Territoire">Volumes absolus · sélection A/B indépendante</span>}
+  </div>
  </section>;
 }
 function V5Pipeline({onOpen}){
@@ -419,10 +437,9 @@ function App(){
     </div>
     <div className="v5-lower">
      <div className="v5-trend">
-      <TrendSection daily={daily} focusKey={focusKey}/>
-      {peak&&<span className="v5-peak" title="Maximum journalier de la production étudiée dans la sélection">Pic {formatDate(peak.date)} · {twh(peak.production_mwh,3)} TWh</span>}
+      <TrendSection daily={daily} focusKey={focusKey} peak={peak}/>
      </div>
-     <V5Compare regions={sortedRegions} focusKey={focusKey} firstCode={firstCode} secondCode={secondCode} onFirst={chooseFirst} onSecond={chooseSecond} onDetails={()=>setDrawer('regions')}/>
+     <V5Compare regions={sortedRegions} focusKey={focusKey} firstCode={firstCode} secondCode={secondCode} onFirst={chooseFirst} onSecond={chooseSecond} scopeCode={scope} scopeName={name} onUseScope={()=>chooseFirst(scope)} onDetails={()=>setDrawer('regions')}/>
     </div>
     <V5Pipeline onOpen={()=>setDrawer('pipeline')}/>
     <footer className="v5-footer">
