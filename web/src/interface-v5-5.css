@@ -39,7 +39,7 @@
       clamp(50px,8vh,68px)
       clamp(58px,9vh,74px)
       minmax(0,1fr)
-      clamp(154px,24vh,187px)
+      clamp(180px,24vh,192px)
       34px
       22px;
   }
@@ -197,7 +197,7 @@
 @media (min-width:1160px) and (min-height:620px) and (max-height:730px) {
   .cockpit-v42.cockpit-v5 .v5-body {
     grid-template-rows:
-      50px 58px minmax(0,1fr) 158px 33px 22px;
+      50px 58px minmax(0,1fr) 180px 33px 22px;
   }
   .cockpit-v42.cockpit-v5 .v5-hero h1 {font-size:23px;margin-top:3px}
   .cockpit-v42.cockpit-v5 .v5-controls .v5-region-control select,
