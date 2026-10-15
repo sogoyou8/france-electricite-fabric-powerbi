@@ -15,12 +15,13 @@ import './interface-v5-1.css';
 import './interface-v5-2.css';
 import './interface-v5-3.css';
 import './interface-v5-4.css';
+import './interface-v5-5.css';
 
 const REPO='https://github.com/sogoyou8/france-electricite-fabric-powerbi';
 const NAV=[['exploration','Explorer'],['comparaison','Comparer'],['tracabilite','Traçabilité']];
 const MAP_COLORS=['#e7eef7','#c7dcf4','#9ec3eb','#6f9fd4','#427cb9','#205a9a','#123c74'];
 // Tight framing preserves every outline while freeing the old horizontal whitespace.
-const V53_MAP_VIEWBOX='72 8 616 580';
+const V53_MAP_VIEWBOX='55 8 650 580';
 const V53_MAP_LABELS={
  '11':['Paris'],'24':['Centre-Val','de Loire'],'27':['Bourgogne','Fr.-Comté'],
  '28':['Normandie'],'32':['Hauts-de','France'],'44':['Grand Est'],
