@@ -1,0 +1,82 @@
+/* V5.4 — final legibility: precision handled in chart code, with subtle
+   geographic enlargement that leaves the twelve outlines intact. */
+
+/* The SVG viewBox is tightly bound to the known twelve geographic paths.
+   The map uses more of its height, never a distortion or background zoom. */
+.cockpit-v5 .v5-map .geography{
+ padding-top:3px;
+ padding-bottom:2px;
+}
+.cockpit-v5 .v5-map .map-subtitle{
+ margin-top:2px;
+ margin-bottom:0;
+}
+.cockpit-v5 .v5-map .map-layout{
+ min-height:0;
+ overflow:hidden;
+}
+.cockpit-v5 .v5-map .france-map{
+ display:block;
+ height:100%;
+ width:auto;
+ min-height:0;
+ max-width:100%;
+ max-height:100%;
+ transform:none;
+ transform-origin:center;
+}
+
+/* Shorter, better-placed labels avoid collisions in central France.
+   The official, unabbreviated name remains attached to every SVG path. */
+.cockpit-v5 .v5-map .v53-map-label{
+ font-size:20px;
+ font-weight:720;
+ letter-spacing:-.025em;
+ paint-order:stroke fill;
+ stroke:#f4f8fc;
+ stroke-width:2.5px;
+ stroke-linejoin:round;
+}
+.cockpit-v5 .v5-map .v54-label-dense{
+ font-size:17.6px;
+ letter-spacing:-.022em;
+ stroke-width:2.2px;
+}
+.cockpit-v5 .v5-map .v53-map-label.map-label-on-dark{
+ fill:#ffffff;
+ stroke:#244873;
+ stroke-width:2.4px;
+}
+.cockpit-v5 .v5-map .map-scale-text{
+ font-size:11px;
+ font-weight:630;
+ color:#496985;
+}
+
+/* Trade a few pixels of the micro-comparison's generous slot for the
+   geographically constrained map, without ever compressing A/B controls. */
+@media(min-width:1160px) and (min-height:740px){
+ .cockpit-v5 .v5-body{
+  grid-template-rows:
+   clamp(60px,9vh,74px)
+   clamp(65px,9.5vh,80px)
+   minmax(0,1fr)
+   clamp(178px,21vh,188px)
+   42px
+   23px;
+ }
+ .cockpit-v5 .v5-map .geography{
+  padding-top:3px;
+  padding-bottom:0;
+ }
+ .cockpit-v5 .v5-map .map-layout{height:0;flex:1 1 0%}
+}
+
+/* Keep legibility on the responsive layout; no forced one-screen mobile crop. */
+@media(max-width:1159px){
+ .cockpit-v5 .v5-map .v53-map-label{font-size:18px}
+ .cockpit-v5 .v5-map .v54-label-dense{font-size:16px}
+}
+@media(max-width:790px){
+ .cockpit-v5 .v5-map .france-map{transform:none}
+}
