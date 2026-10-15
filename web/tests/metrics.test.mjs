@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {loadGoldFacts,selectFacts,summarize,byDate,byRegion,energyMix,rowsCSV,observationsFor} from '../src/metrics.js';
+import {loadGoldFacts,selectFacts,summarize,byDate,byRegion,energyMix,rowsCSV,observationsFor,axisTickLabels} from '../src/metrics.js';
 const demo=async()=>{
  const [f,r,d]=await Promise.all(['fact_energie.csv','dim_region.csv','dim_date.csv'].map(name=>readFile(new URL('../public/data/'+name,import.meta.url),'utf8')));
  return loadGoldFacts(f,r,d);
@@ -57,4 +57,19 @@ test('Gold quality rejects duplicate day-region rows and a mismatched date dimen
  lines[2]=lines[1];
  assert.throws(()=>loadGoldFacts(lines.join('\n'),r,d),/doublonné/);
  assert.throws(()=>loadGoldFacts(f,r,d.trim().split(/\r?\n/).slice(0,-1).join('\n')),/Dimension date incohérente/);
+});
+
+
+test('adaptive chart labels stay distinct for small regional TWh magnitudes',()=>{
+ const cases=[0.019,0.030,0.054,0.26,2.1,0.0015];
+ for(const max of cases){
+  const labels=axisTickLabels(max);
+  assert.equal(labels.length,5);
+  assert.equal(new Set(labels).size,5,'Duplicate Y-axis label for '+max+' TWh');
+  const values=labels.map(label=>Number(label.replace(/\s/g,'').replace(',','.')));
+  assert.equal(values[0],0);
+  assert.ok(values.every((value,index)=>index===0||value>values[index-1]));
+ }
+ assert.deepEqual(axisTickLabels(0),['0','0','0','0','0']);
+ assert.throws(()=>axisTickLabels(-1),/Amplitude/);
 });
