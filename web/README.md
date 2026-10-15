@@ -1,24 +1,22 @@
-# France Électricité 2024 — cockpit analytique V4
+# France Électricité 2024 — cockpit analytique V4.2
 
 Interface web React + Vite du projet **Databricks & Power BI**, alimentée par les **trois exports Gold** du même jeu public : fact_energie.csv, dim_region.csv, dim_date.csv dans web/public/data/.
 
 **Périmètre réel :** janvier 2024 seulement, 12 régions de France métropolitaine hors Corse, six filières de production. Les 17 856 relevés demi-horaires RTE / ODRÉ ont été préparés avec Databricks / PySpark / Delta Lake puis agrégés en 372 faits région × jour. **Microsoft Fabric n'a pas été utilisé.** Aucune base Neon, aucun backend ni flux temps réel.
 
-## V4 — un seul espace de lecture
+## V4.2 — logiciel analytique en trois espaces
 
-La V4 rassemble les cinq vues antérieures dans un **cockpit sur une page**, avec sections accessibles par ancres :
+La V4.2 remplace le long rapport défilant de V4.1 par un **espace de travail compact** à trois vues accessibles sans changer d'URL :
 
-- Indicateurs cohérents : consommation, production des six filières, volume renouvelable, part renouvelable.
-- Carte des 12 régions (contours IGN), avec sélection régionale, lecture de la production ou de la consommation et prise en compte d'une filière mise en évidence.
-- Courbes quotidiennes production / consommation ; lorsqu'une filière est sélectionnée, sa courbe s'ajoute **sans remplacer** la production totale.
-- Mix des six filières cliquable, tableau régional triable et comparaison directe de deux régions sur la **même période**.
-- Trois constats descriptifs **calculés sur la sélection** : région en tête sur la période, jour de pointe, première filière ou part de la filière active.
-- Tableau journalier et empilement des six filières dans un panneau dépliable, export CSV des faits Gold correspondant aux filtres **région + dates**.
-- Traçabilité visible de RTE/ODRÉ jusqu'à Databricks (Bronze logique, Silver, Gold), SQL, Power BI et l'application web. Méthode et limites dépliables.
+- **Explorer** : quatre KPI, carte interactive des 12 régions, inspecteur régional avec **une seule liste des six filières**, courbe quotidienne production/consommation et trois constats calculés sur les filtres actifs.
+- **Comparer** : classement régional et face-à-face de deux régions distinctes, sur la **même période**. Les volumes sont absolus, sans déduire de flux régionaux.
+- **Traçabilité** : chaîne RTE / ODRÉ → Bronze logique → Silver Delta → Gold → SQL / Power BI et Web ; liens vers notebooks, SQL, modèle Power BI et documentation.
 
-Les filtres **région et dates** affectent les KPI, les séries et le mix ; la carte et le classement conservent les douze régions pour fournir un référentiel comparatif sur la même période. La **filière** est un *focus analytique* : elle agit sur la carte (en mode production), la courbe, les constats et la comparaison A/B ; elle **ne change pas la définition** de la production totale, de la consommation ou de la part renouvelable. Les CSV exportés contiennent toutes les mesures des six filières pour les jours-régions filtrés.
+La navigation, les filtres de dates et de territoire et l'export CSV restent disponibles dans la barre de commande. Les données journalières et la méthode s'ouvrent dans des **panneaux latéraux contextuels** ; le tableau détail et son graphique empilé n'encombrent plus l'exploration. Sur desktop d'environ **1440 × 900**, l'interface vise un écran sans scroll principal. Sur petites fenêtres et mobiles, le défilement reste autorisé pour préserver la lisibilité.
 
-Aucun écran SaaS à sidebar ni panneaux de cartes arrondies répétitives : l'interface privilégie une barre discrète, des séparateurs fins, une hiérarchie de lecture et une navigation continue.
+La sélection de **région + dates** recalcule les KPI, la courbe et les répartitions. La carte et le tableau comparatif conservent les douze régions de la période comme référentiel. Une **filière** est un focus visuel transversal : elle influe sur la carte en mode Production, la courbe, les constats et la comparaison A/B, sans changer la définition du total des six filières ni les colonnes de l'export CSV.
+
+Les chiffres sont ceux du périmètre Gold statique, **pas des mesures en temps réel**. Aucune simulation ni nouvelle source de données n'est introduite par la refonte.
 
 ## Installation et tests
 
