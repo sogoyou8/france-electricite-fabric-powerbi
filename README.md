@@ -4,7 +4,15 @@
 
 Pipeline de données complet, de la collecte d'informations ouvertes sur l'électricité en France à un tableau de bord Power BI interactif.
 
-**Stack réellement utilisée :** Databricks Free Edition · PySpark · Delta Lake · SQL · Power BI Desktop · Power Query · DAX · PBIP/TMDL. **Microsoft Fabric n'a pas été utilisé.**
+**Stack réellement utilisée :** Databricks Free Edition · PySpark · Delta Lake · SQL · Power BI Desktop · Power Query · DAX · PBIP/TMDL · React · Vite. **Microsoft Fabric n'a pas été utilisé.**
+
+## Démonstration interactive
+
+**[Ouvrir le cockpit France Électricité 2024](https://france-electricite-2024-explorer.vercel.app/)**
+
+Une seule page permet d'explorer **12 régions, 6 filières, 31 jours et 4 indicateurs** : carte interactive, mix de production, évolution quotidienne et comparaison de deux territoires. Le bouton **Données** donne accès aux fichiers Gold étudiés (tableau ou graphique), au classement régional, au pipeline et à la méthode ; **Exporter CSV** télécharge les résultats de la sélection.
+
+Cette vitrine web exploite les exports Gold du projet Databricks et ne prétend pas être un flux temps réel. Le livrable **Power BI Desktop** se trouve dans [`powerbi/`](powerbi/) au format PBIP/TMDL : il s'agit de fichiers source à ouvrir dans Power BI Desktop, **pas d'un rapport Power BI Service public**.
 
 ![Vue d'ensemble du rapport](docs/images/01_vue_ensemble.png)
 
@@ -41,6 +49,7 @@ flowchart LR
   E --> F[CSV Gold]
   F --> G[Power BI<br/>PBIP + TMDL + DAX]
   G --> H[4 pages interactives]
+  F --> I[React + Vite<br/>Cockpit web 1 page]
 ```
 
 - **Bronze :** import CSV brut via `spark.read.csv` (32 colonnes). Note : Bronze est le **niveau logique d'ingestion du CSV**, et **pas une table Delta Bronze persistée** dans les notebooks actuels.
@@ -61,6 +70,7 @@ Comme les données de puissance sont exprimées en MW et que chaque pas dure 30 
 | [`docs/images/`](docs/images/) | 4 captures PNG 16:9 du rapport |
 | [`data/demo/`](data/demo/) | 3 petits CSV Gold dérivés du jeu public, permettant d'actualiser Power BI sans Databricks |
 | [`docs/architecture.md`](docs/architecture.md) | Explication du pipeline et limites |
+| [`web/`](web/) | Cockpit React/Vite interactif et contrôles automatisés |
 | [`scripts/check_repo.py`](scripts/check_repo.py) | Validation statique et contrôle des données de démonstration |
 
 ## Dashboard
