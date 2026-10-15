@@ -1,0 +1,239 @@
+/* V5.2 — legibility and interaction polish without changing viewport architecture.
+   Map, hierarchy, A/B distinction, and a single-scroll data drawer. */
+
+/* Strengthen the map without hiding a region or changing its geographical paths. */
+.cockpit-v5 .v5-map .map-label{
+ font-size:19px;
+ font-weight:700;
+ letter-spacing:-.015em;
+ paint-order:stroke fill;
+ stroke:#f5f9ff;
+ stroke-width:2.3px;
+ stroke-linejoin:round;
+}
+.cockpit-v5 .v5-map .map-label-on-dark{
+ fill:#ffffff;
+ stroke:#254a7d;
+ stroke-width:2.2px;
+}
+.cockpit-v5 .v5-map .map-scale-text{
+ font-size:11px;
+ font-weight:580;
+ color:#476783;
+}
+.cockpit-v5 .v5-map .map-subtitle{
+ color:#58738b;
+ font-size:11px;
+}
+@media(min-width:1160px) and (min-height:620px){
+ .cockpit-v5 .v5-map .france-map{
+  transform:scale(1.09);
+  transform-origin:center;
+ }
+}
+@media(max-width:790px){
+ .cockpit-v5 .v5-map .france-map{transform:none}
+ .cockpit-v5 .v5-map .map-label{font-size:16px;stroke-width:1.8px}
+}
+
+/* Give navigation cues/legends the same clarity as the figures. */
+.cockpit-v5 .v5-stack{font-size:12px}
+.cockpit-v5 .v5-trend .line-legend{font-size:11px;color:#476581}
+.cockpit-v5 .v5-trend .chart-unit{font-size:11px;color:#5b7690}
+.cockpit-v5 .v5-trend .v5-peak{font-size:10.5px;color:#55718b}
+.cockpit-v5 .v5-mix-name{font-size:12px}
+.cockpit-v5 .v5-mix-row strong{font-size:11.5px}
+.cockpit-v5 .v5-mix-pct{font-size:11px;color:#526f88}
+.cockpit-v5 .v5-pipeline-label{
+ font-size:11px;
+ color:#486c8d;
+ letter-spacing:.04em;
+}
+.cockpit-v5 .v5-pipeline-stage strong{font-size:11.5px;color:#274866}
+.cockpit-v5 .v5-pipeline-stage small{font-size:10.5px;color:#687f95}
+.cockpit-v5 .v5-pipeline-arrow{font-size:16px;color:#829eb8}
+.cockpit-v5 .v5-pipeline-action{font-size:11px}
+.cockpit-v5 .v5-footer{font-size:10px;color:#647f96}
+.cockpit-v5 .v5-footer button{font-size:10.5px}
+
+/* A blue, B teal: visible in selectors, KPIs and directly labeled bars. */
+.cockpit-v5 .v52-region-a>span,
+.cockpit-v5 .v52-region-b>span{
+ display:flex;align-items:center;gap:6px;
+ font-size:11px;font-weight:720;
+}
+.cockpit-v5 .v52-region-a>span i,
+.cockpit-v5 .v52-region-b>span i{
+ width:7px;height:7px;
+ display:inline-block;
+ border-radius:2px;
+ flex:0 0 auto;
+}
+.cockpit-v5 .v52-region-a>span i{background:#376fc3}
+.cockpit-v5 .v52-region-b>span i{background:#48acb8}
+.cockpit-v5 .v52-region-a select{border-bottom:2px solid #376fc3}
+.cockpit-v5 .v52-region-b select{border-bottom:2px solid #48acb8}
+.cockpit-v5 .v5-compare-amounts .v52-amount-a{
+ box-shadow:inset 3px 0 #376fc3;
+ padding-left:9px;
+}
+.cockpit-v5 .v5-compare-amounts .v52-amount-b{
+ box-shadow:inset 3px 0 #48acb8;
+ padding-left:9px;
+}
+.cockpit-v5 .v52-amount-a small{color:#376fc3;font-weight:800}
+.cockpit-v5 .v52-amount-b small{color:#268e9b;font-weight:800}
+.cockpit-v5 .v5-paired-bars{
+ gap:2px;
+ padding-top:5px;
+ margin-top:auto;
+}
+.cockpit-v5 .v52-bar-row{
+ display:grid;
+ grid-template-columns:12px minmax(0,1fr);
+ align-items:center;
+ gap:6px;
+ min-height:9px;
+}
+.cockpit-v5 .v52-bar-row>span:first-child{
+ font-size:9px;font-weight:800;color:#59768f;
+}
+.cockpit-v5 .v52-bar-row .v5-paired-bar{
+ display:block;
+ height:5px;
+ width:100%;
+ border-radius:1px;
+ background:#dce7f1;
+}
+.cockpit-v5 .v52-bar-row .v5-paired-bar>span{display:block;height:100%}
+
+/* One vertical scrolling surface in the DATA panel. Switching views replaces
+   content instead of stacking a scrolling table and a scrolling chart. */
+.cockpit-v5 .drawer-content{
+ overflow-y:auto;
+ overflow-x:hidden;
+ scrollbar-width:thin;
+}
+.cockpit-v5 .v52-data-view{
+ display:flex;
+ flex-direction:column;
+ min-height:0;
+ width:100%;
+}
+.cockpit-v5 .v52-data-toolbar{
+ position:sticky;
+ top:-16px;
+ z-index:3;
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:13px;
+ margin:-3px 0 13px;
+ padding:10px 0;
+ background:#f5f8fc;
+ border-bottom:1px solid #d1e0ed;
+}
+.cockpit-v5 .v52-data-summary{
+ display:flex;align-items:baseline;flex-wrap:wrap;
+ gap:6px;font-size:12px;color:#667e93;
+}
+.cockpit-v5 .v52-data-summary strong{color:#284866;font-size:13px}
+.cockpit-v5 .v52-data-tabs{
+ display:flex;align-items:center;gap:3px;
+ background:#e5edf6;
+ border:1px solid #d2e1ee;
+ border-radius:7px;
+ padding:3px;
+}
+.cockpit-v5 .v52-data-tabs button{
+ appearance:none;
+ border:0;
+ background:transparent;
+ color:#536f89;
+ padding:7px 12px;
+ border-radius:5px;
+ font-size:12px;
+ font-weight:680;
+ cursor:pointer;
+}
+.cockpit-v5 .v52-data-tabs button[aria-selected="true"]{
+ color:#244a70;
+ background:#ffffff;
+ box-shadow:0 1px 5px #26415a1b;
+}
+.cockpit-v5 .v52-data-content{
+ width:100%;
+ min-height:0;
+ overflow-x:auto;
+ overflow-y:visible;
+}
+.cockpit-v5 .v52-daily-table{
+ min-width:600px;
+ width:100%;
+ border-collapse:collapse;
+ font-size:12px;
+ font-variant-numeric:tabular-nums;
+}
+.cockpit-v5 .v52-daily-table thead th{
+ position:static;
+ background:#e9f0f8;
+ color:#536f87;
+ font-size:11px;
+ white-space:nowrap;
+}
+.cockpit-v5 .v52-daily-table th:first-child{text-align:left}
+.cockpit-v5 .v52-daily-table tbody tr:hover{background:#e6eff9}
+.cockpit-v5 .v52-data-content .v52-chart-panel{
+ padding:6px 0 12px;
+ min-height:0;
+}
+.cockpit-v5 .v52-chart-panel h3{
+ font-size:15px;
+ font-weight:720;
+ color:#284765;
+ margin:0 0 12px;
+}
+.cockpit-v5 .v52-chart-panel .stacked-chart{
+ display:block;
+ width:100%;
+ max-height:none;
+ height:auto;
+ min-height:240px;
+}
+.cockpit-v5 .v52-chart-legend{
+ display:flex;
+ flex-wrap:wrap;
+ gap:10px 16px;
+ font-size:11px;
+ color:#56718a;
+ margin:13px 0;
+}
+.cockpit-v5 .v52-chart-legend>span{display:flex;align-items:center;gap:5px}
+.cockpit-v5 .v52-chart-legend i{width:8px;height:8px;display:inline-block;border-radius:2px}
+.cockpit-v5 .v52-drawer-note{
+ margin:14px 0 0;
+ border-top:1px solid #d5e2ef;
+ padding:13px 0 3px;
+ font-size:11px;
+ color:#6c8297;
+ line-height:1.5;
+}
+@media(max-width:540px){
+ .cockpit-v5 .v52-data-toolbar{
+  flex-direction:column;
+  align-items:stretch;
+  gap:10px;
+ }
+ .cockpit-v5 .v52-data-tabs{width:100%}
+ .cockpit-v5 .v52-data-tabs button{flex:1 1 50%}
+ .cockpit-v5 .v52-data-content .v52-chart-panel{min-width:0}
+}
+@media(min-width:1160px) and (min-height:620px) and (max-height:700px){
+ .cockpit-v5 .v5-map .map-label{font-size:17px}
+ .cockpit-v5 .v5-mix-name{font-size:11px}
+ .cockpit-v5 .v5-pipeline-stage strong{font-size:10.5px}
+ .cockpit-v5 .v5-trend .v5-peak{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+ .cockpit-v5 .v52-bar-row .v5-paired-bar>span{transition:none}
+}
