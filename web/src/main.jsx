@@ -17,6 +17,7 @@ import './interface-v5-3.css';
 import './interface-v5-4.css';
 import './interface-v5-5.css';
 import './interface-v5-6.css';
+import './interface-v5-7.css';
 
 const REPO='https://github.com/sogoyou8/france-electricite-fabric-powerbi';
 const NAV=[['exploration','Explorer'],['comparaison','Comparer'],['tracabilite','Traçabilité']];
@@ -372,10 +373,9 @@ const DATA_PANELS=[
  {key:'methode',label:'Méthode',short:'Méthode',description:'Définitions et limites'}
 ];
 function DataCommandPanel({active,onClose,onNavigate,panelRef,daily,focusKey,regions,scope,onSelectRegion}){
- const current=DATA_PANELS.find(p=>p.key===active)||DATA_PANELS[0];
  return <div className="v56-overlay" data-testid="data-command-overlay">
   <button type="button" className="v56-backdrop" tabIndex={-1} aria-label="Fermer les données" onClick={onClose}/>
-  <section ref={panelRef} className="v56-command" role="dialog" aria-modal="true" aria-labelledby="v56-command-title" aria-describedby="v56-command-subtitle">
+  <section ref={panelRef} className="v56-command" role="dialog" aria-modal="true" aria-labelledby="v56-command-title">
    <header className="v56-command-header">
     <div className="v56-command-identity"><span className="v56-command-mark" aria-hidden="true">▦</span><div>
      <span className="v56-command-eyebrow">France / Électricité · janvier 2024</span>
@@ -397,7 +397,6 @@ function DataCommandPanel({active,onClose,onNavigate,panelRef,daily,focusKey,reg
      tabIndex={active===entry.key?0:-1} className={'v56-command-tab'+(active===entry.key?' is-active':'')}
      onClick={()=>onNavigate(entry.key)}><span className="v56-command-tab-number">0{index+1}</span>{entry.label}</button>)}
    </div>
-   <div className="v56-command-context"><div><span className="v56-command-eyebrow">{current.label}</span><p id="v56-command-subtitle">{current.description}</p></div><span className="v56-command-context-meta">RTE / ODRÉ <i/> Gold 2024</span></div>
    <div className="v56-command-body" role="tabpanel" id="v56-command-content" aria-labelledby={'v56-tab-'+active}>
     {active==='donnees'&&<V52DataDrawer daily={daily} focusKey={focusKey}/>}
     {active==='regions'&&<><p className="v5-drawer-intro">Choisissez une région : les indicateurs du cockpit se mettront à jour.</p><RegionTable allRegions={regions} selected={scope} onSelect={onSelectRegion} focusKey={focusKey}/></>}
