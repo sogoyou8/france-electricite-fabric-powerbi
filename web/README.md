@@ -22,11 +22,13 @@ Aucun écran SaaS à sidebar ni panneaux de cartes arrondies répétitives : l'i
 
 ## Installation et tests
 
+```sh
 cd web
 npm install
 npm test
 npm run build
 npm run dev
+```
 
 Configuration Vercel : Root Directory **web**, Framework **Vite**, Build Command **npm run build**, Output Directory **dist**.
 
