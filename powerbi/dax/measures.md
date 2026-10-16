@@ -4,7 +4,7 @@
 
 Ce document retranscrit les mesures DAX enregistrées dans le modèle Power BI. Les formules sont conservées sans correction ni réécriture. Il ne s'agit pas d'un compte rendu d'exécution indépendant.
 
-**Inventaire : 12 mesures DAX définies, plus 1 emplacement de mesure vide.**
+**Inventaire actuel : 12 mesures DAX définies.** L'ancienne mesure d'essai vide a été retirée des sources PBIP versionnées.
 
 ## Consommation totale (TWh)
 
@@ -161,9 +161,9 @@ DIVIDE(
 
 ## Audit et réserves
 
-- **Mesure vide** : une mesure `Mesure` sans expression apparaît dans `dim_date`. Elle peut être supprimée après vérification dans Power BI.
+- **Mesure vide historique** : le relevé initial comportait une mesure `Mesure` sans expression. Elle a été retirée du TMDL du dépôt ; le contrôle statique vérifie que les 12 mesures restantes sont définies.
 - **Classement** : les mesures d'E6 sont actuellement rangées sous `dim_date`, même lorsqu'elles portent sur la production. Le calcul fonctionne mais une table dédiée aux mesures serait plus lisible.
-- **Sources Power Query locales** : les trois tables importent des CSV à partir de chemins absolus Windows dans le profil utilisateur. Pour publier un dépôt reproductible, ajouter les CSV exportés s'ils sont redistribuables, ou expliquer comment régénérer ces fichiers et reconfigurer leurs chemins.
+- **Sources Power Query (M)** : les trois tables importent des CSV via le paramètre `DataRoot` (`expressions.tmdl`) ; les étapes de promotion d'en-têtes, de conversion des types et de gestion de la locale numérique sont présentes dans le TMDL. Régler `DataRoot` sur le dossier `data/demo/` puis actualiser dans Power BI Desktop (voir [README principal](../../README.md)).
 - **Contrôle numérique** : l'écart renouvelables est affiché à quatre décimales sur le rapport ; cette correspondance atteste une cohérence au niveau de précision affiché, sans remplacer un contrôle des lignes sources.
 - **Sécurité et partage** : éviter d'inclure les caches `.pbi`, fichiers de configuration locale et métadonnées `.git` dans un paquet d'archive public. Les scripts DAX ci-dessus ne contiennent pas de chemin local.
 
@@ -175,4 +175,4 @@ DIVIDE(
 
 ## Reproduction
 
-Power BI Desktop (projet `France_Electricite_2024.pbip`) ; données importées depuis `fact_energie.csv`, `dim_date.csv` et `dim_region.csv`, produites à partir des notebooks Databricks Free Edition (fichier source distinct).
+Power BI Desktop (projet `France_Electricite_2024.pbip`) ; données importées depuis `fact_energie.csv`, `dim_date.csv` et `dim_region.csv`, produits à partir des tables Gold Databricks. Les trois CSV de démonstration sont fournis dans `data/demo/`. L'ouverture et l'actualisation restent à valider dans Power BI Desktop sur Windows ; les tests CI n'exécutent pas DAX.
