@@ -16,7 +16,7 @@ Cette recette clôture un **projet portfolio Data Analyst sur des données figé
 
 - [x] CI Python : `python scripts/check_repo.py` sur la PR de documentation E6.
 - [x] CI web : calculs, sélection région/date, carte et données Gold validés par `npm test` sur la PR de documentation E6.
-- [ ] Après cette modification : `npm ci`, `npm audit --audit-level=high`, `npm test` et `npm run build` doivent réussir dans la PR #6.
+- [x] Sur la PR #6 : `npm ci`, `npm audit --audit-level=high`, `npm test` et `npm run build` réussis ([run GitHub Actions #38851846965](https://github.com/sogoyou8/france-electricite-fabric-powerbi/actions/runs/38851846965)).
 - [ ] Après fusion : workflow web sur `main` validé ; [démo Vercel](https://france-electricite-2024-explorer.vercel.app/) toujours accessible.
 - [x] Portfolio [Abyss Showcase](https://abyss-public-showcase.vercel.app/projects/france-electricite-2024) déjà publié.
 
