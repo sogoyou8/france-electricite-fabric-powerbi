@@ -1,10 +1,14 @@
-# France Électricité 2024 — one-page DATA showcase V5
+# France Électricité 2024 — cockpit analytique V5.7
 
 L'application React + Vite présente le travail du projet **Databricks / PySpark / SQL / Power BI** sur une **seule surface analytique**, lisible en un coup d'œil par un recruteur. Les données restent celles des **trois exports Gold** : `fact_energie.csv`, `dim_region.csv`, `dim_date.csv` dans `web/public/data/`.
 
 **Périmètre réel :** janvier 2024 uniquement ; 12 régions métropolitaines hors Corse ; six filières. 17 856 relevés demi-horaires RTE / ODRÉ ingérés dans Databricks, transformés en Silver Delta puis agrégés en 372 faits jour × région. **Microsoft Fabric n'a pas été utilisé.** Aucun streaming, backend ou temps réel.
 
-## V5.6 — cockpit épuré et outil de données à la demande
+- **[Démonstration en ligne V5.7](https://france-electricite-2024-explorer.vercel.app/)** : cockpit interactif publié.
+- **[Présentation dans Abyss Showcase](https://abyss-public-showcase.vercel.app/projects/france-electricite-2024)** : quatre vues distinctes du même projet DATA.
+- **[README technique principal](../README.md)** : chiffres contrôlés, provenance des données, notebooks, SQL, modèle Power BI et limites.
+
+## Fonctionnement actuel — V5.7
 
 Le cockpit affiche ensemble : **4 KPI**, carte interactive des **12 régions**, mix des **6 filières**, courbe quotidienne production/consommation, **comparaison A/B**. Il ne comporte **aucune navigation entre espaces Explorer/Comparer/Traçabilité**. Le détail est présenté uniquement sur demande, dans un espace flottant accessible depuis la barre d'outils :
 
