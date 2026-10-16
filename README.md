@@ -1,20 +1,24 @@
-# France Électricité 2024 — Databricks & Power BI
+# France Électricité 2024 — Pipeline Data & exploration énergétique
 
 **Projet Data Analyst · RTE/ODRÉ · Janvier 2024**
 
-Pipeline de données complet, de la collecte d'informations ouvertes sur l'électricité en France à un tableau de bord Power BI interactif.
+Étude de bout en bout sur l'électricité française : ingestion et transformation des données ouvertes RTE, modélisation analytique, rapport Power BI Desktop et cockpit web interactif.
 
 **Stack réellement utilisée :** Databricks Free Edition · PySpark · Delta Lake · SQL · Power BI Desktop · Power Query · DAX · PBIP/TMDL · React · Vite. **Microsoft Fabric n'a pas été utilisé.**
 
-## Démonstration interactive
+## Démonstration interactive et portfolio
 
-**[Ouvrir le cockpit France Électricité 2024](https://france-electricite-2024-explorer.vercel.app/)**
+- **[Explorer le cockpit web V5.7](https://france-electricite-2024-explorer.vercel.app/)** — démonstration fonctionnelle.
+- **[Voir le projet dans Abyss Showcase](https://abyss-public-showcase.vercel.app/projects/france-electricite-2024)** — présentation visuelle des quatre usages : vue nationale, exploration régionale, données Gold et comparaison A/B.
+- **[Consulter le rapport Power BI Desktop](powerbi/France_Electricite_2024.pbip)** — projet source PBIP à télécharger et actualiser localement.
 
 Une seule page permet d'explorer **12 régions, 6 filières, 31 jours et 4 indicateurs** : carte interactive, mix de production, évolution quotidienne et comparaison de deux territoires. Le bouton **Données** donne accès aux fichiers Gold étudiés (tableau ou graphique), au classement régional, au pipeline et à la méthode ; **Exporter CSV** télécharge les résultats de la sélection.
 
 Cette vitrine web exploite les exports Gold du projet Databricks et ne prétend pas être un flux temps réel. Le livrable **Power BI Desktop** se trouve dans [`powerbi/`](powerbi/) au format PBIP/TMDL : il s'agit de fichiers source à ouvrir dans Power BI Desktop, **pas d'un rapport Power BI Service public**.
 
-![Vue d'ensemble du rapport](docs/images/01_vue_ensemble.png)
+![Cockpit web V5.7 : indicateurs, carte régionale, mix, évolution et comparaison A/B](https://abyss-public-showcase.vercel.app/media/projects/france-electricite-2024/cockpit-v57-national.jpg)
+
+*Capture du cockpit web V5.7. Les quatre captures du rapport Power BI Desktop sont disponibles plus bas dans la section « Rapport Power BI ».*
 
 ## Objectif et périmètre
 
@@ -59,6 +63,20 @@ flowchart LR
 
 Comme les données de puissance sont exprimées en MW et que chaque pas dure 30 minutes, les énergies journalières sont calculées par : **MWh = Σ(MW × 0,5 h)**. Les mesures DAX convertissent les MWh en TWh par division par 1 000 000.
 
+## Compétences techniques démontrées
+
+| Compétence | Preuve consultable |
+|---|---|
+| **Python / PySpark** | [Nettoyage et contrôles Silver](notebooks/02_transformation_silver.py), [agrégations et tests Gold](notebooks/03_transformation_gold.py). |
+| **Databricks et Delta Lake** | Notebooks avec tables `silver_energie`, `fact_energie`, `dim_date`, `dim_region` et parcours [Bronze logique → Silver → Gold](docs/architecture.md). |
+| **SQL analytique** | [Requêtes de jointure, agrégation et KPI](sql/), dont les indicateurs nationaux et l'export des dimensions. |
+| **Power BI Desktop / modélisation** | [Rapport PBIP](powerbi/France_Electricite_2024.pbip), [modèle TMDL en étoile](powerbi/France_Electricite_2024.SemanticModel/definition/) et quatre pages du rapport. |
+| **DAX** | [12 mesures documentées](powerbi/dax/measures.md) : consommation, production, renouvelables, ratio de couverture et contrôles. |
+| **Power Query (M)** | Import CSV, promotion des en-têtes, conversion des types et paramètres de source `DataRoot` dans les fichiers [TMDL](powerbi/France_Electricite_2024.SemanticModel/definition/tables/). |
+| **React / Vite et analyse visuelle** | [Cockpit interactif](web/), carte, filtres, courbes, comparateur régional, explorateur Gold et tests automatisés. |
+
+Ce tableau décrit les **livrables présents dans ce dépôt**, pas une certification de maîtrise avancée de chacun des outils. Le code Databricks et les fichiers PBIP peuvent être inspectés, mais **leur ré-exécution dans un environnement externe n'est pas garantie** par les seuls contrôles CI. **Microsoft Fabric n'a pas été utilisé** ; Excel n'est pas un outil de ce projet.
+
 ## Structure du dépôt
 
 | Chemin | Fonction |
@@ -67,13 +85,13 @@ Comme les données de puissance sont exprimées en MW et que chaque pas dure 30 
 | [`sql/`](sql/) | 6 requêtes SQL issues du SQL Editor Databricks |
 | [`powerbi/`](powerbi/) | Rapport PBIP, Semantic Model TMDL et mesures DAX |
 | [`powerbi/dax/measures.md`](powerbi/dax/measures.md) | Documentation des 12 mesures DAX |
-| [`docs/images/`](docs/images/) | 4 captures PNG 16:9 du rapport |
+| [`docs/images/`](docs/images/) | 4 captures PNG 16:9 du rapport Power BI Desktop |
 | [`data/demo/`](data/demo/) | 3 petits CSV Gold dérivés du jeu public, permettant d'actualiser Power BI sans Databricks |
 | [`docs/architecture.md`](docs/architecture.md) | Explication du pipeline et limites |
 | [`web/`](web/) | Cockpit React/Vite interactif et contrôles automatisés |
 | [`scripts/check_repo.py`](scripts/check_repo.py) | Validation statique et contrôle des données de démonstration |
 
-## Dashboard
+## Rapport Power BI Desktop (distinct du cockpit web)
 
 | Vue | Capture |
 |---|---|
