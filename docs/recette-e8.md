@@ -20,9 +20,9 @@ Cette recette clôture un **projet portfolio Data Analyst sur des données figé
 - [x] Après fusion : [workflow web sur `main` réussi (run #38852061790)](https://github.com/sogoyou8/france-electricite-fabric-powerbi/actions/runs/38852061790), [contrôles portfolio réussis (run #38852061678)](https://github.com/sogoyou8/france-electricite-fabric-powerbi/actions/runs/38852061678) ; [démo Vercel](https://france-electricite-2024-explorer.vercel.app/) et [page Abyss Showcase](https://abyss-public-showcase.vercel.app/projects/france-electricite-2024) accessibles publiquement (HTTP 200 le 16 octobre 2026).
 - [x] Portfolio [Abyss Showcase](https://abyss-public-showcase.vercel.app/projects/france-electricite-2024) déjà publié.
 
-## Power BI Desktop — validation locale requise
+## Power BI Desktop — validation locale confirmée
 
-Le code source PBIP/TMDL et les 12 mesures DAX existent dans le dépôt. L'ouverture du projet sous Windows et l'affichage du rapport ont été vérifiés visuellement le **16 octobre 2026** ; la **confirmation explicite d'une actualisation complète des trois CSV sans erreur** reste à obtenir. Les captures ne prouvent pas à elles seules l'exécution de l'ensemble des mesures DAX.
+Le code source PBIP/TMDL et les 12 mesures DAX existent dans le dépôt. L'ouverture du projet sous Windows et l'affichage du rapport ont été vérifiés visuellement le **16 octobre 2026**. L'utilisateur a ensuite **confirmé explicitement que les trois CSV se sont actualisés sans erreur dans Power BI Desktop** après réglage de `DataRoot`. Cette confirmation est un retour de recette utilisateur ; les captures ne prouvent pas à elles seules l'exécution exhaustive des 12 mesures DAX.
 
 Procédure Windows :
 
@@ -43,7 +43,7 @@ Statut de la validation manuelle — preuves visuelles reçues le **16 octobre 2
 - [x] Les quatre pages de rapport sont visibles : `Vue d'ensemble`, `Consommation`, `Évolution énergétique` et `Analyse régionale`. La page masquée `Contrôle E6` a également été affichée pour la recette.
 - [x] Les valeurs de référence montrées sur les captures concordent : consommation **48,56 TWh**, nucléaire **35,92 TWh**, renouvelables **15,00 TWh**, part renouvelable **27,28 %**, production totale **54,97 TWh**, couverture **113,20 %** et écart de contrôle **0,0000**.
 - [x] L'utilisateur a fourni des captures des cinq pages montrant l'ouverture et les principaux visuels. Ces captures ont été examinées dans la conversation ; elles ne sont pas versionnées dans ce dépôt.
-- [ ] L'utilisateur confirme explicitement qu'après réglage de `DataRoot`, l'actualisation de `fact_energie.csv`, `dim_date.csv` et `dim_region.csv` s'est terminée **sans erreur**. Les captures seules ne permettent pas de garantir cette étape.
+- [x] L'utilisateur a **confirmé explicitement le 16 octobre 2026**, après réglage de `DataRoot`, que `fact_energie.csv`, `dim_date.csv` et `dim_region.csv` se sont actualisés dans Power BI Desktop **sans erreur** (confirmation écrite dans la conversation, distincte des captures).
 - [ ] Vérification exhaustive des **12 mesures DAX** dans Power BI Desktop (hors contrôles de valeurs visibles déjà notés). Cette exhaustivité n'est pas requise pour la recette portfolio, mais ne doit pas être déclarée effectuée.
 
 ## Périmètre et fin de projet
@@ -52,4 +52,6 @@ Statut de la validation manuelle — preuves visuelles reçues le **16 octobre 2
 - **Non réalisé** : Microsoft Fabric, streaming ou actualisation temps réel, Power BI Service public.
 - **Hors clôture** : refonte CSS/React, Playwright complet, Great Expectations, changement de stack, automatisation du workspace Databricks.
 
-**Critère d'arrêt** : CI `main` verte, démo et portfolio accessibles, documentation GitHub cohérente, description du dépôt sans la mention erronée de Microsoft Fabric et recette Power BI confirmée. Les quatre premiers critères ont été vérifiés le **16 octobre 2026**, y compris la description GitHub désormais conforme à la stack réelle. **Dernier critère en attente : confirmation explicite de l'actualisation locale des trois CSV sans erreur.** Ensuite, figer le projet et passer au deuxième projet DATA.
+**Critère d'arrêt — rempli le 16 octobre 2026** : CI `main` verte, démo et portfolio accessibles, documentation GitHub cohérente, description du dépôt corrigée (sans la mention erronée de Microsoft Fabric) et recette Power BI confirmée par l'utilisateur, y compris l'actualisation des trois CSV sans erreur.
+
+**Statut final : projet France Électricité 2024 clôturé pour son périmètre portfolio Data Analyst.** Aucun nouveau développement n'est requis. La ré-exécution indépendante des données brutes RTE et la vérification exhaustive des 12 mesures DAX ne sont **pas** revendiquées ; ces limites sont documentées. Le projet peut être figé et présenté aux recruteurs, puis le travail DATA peut passer au deuxième projet.
